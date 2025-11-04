@@ -7,7 +7,8 @@ const PORT = process.env.PORT || 3000;
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Fallback to index.html for SPA-ish routing
-app.get('*', (req, res) => {
+// Use '/*' to avoid path-to-regexp errors on some Express versions
+app.get('/*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
