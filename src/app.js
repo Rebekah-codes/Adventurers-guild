@@ -37,6 +37,21 @@ app.get('/quests', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'quests.html'));
 });
 
+// Dedicated application page
+app.get('/application', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'application.html'));
+});
+
+// Set password page
+app.get('/set-password', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'set-password.html'));
+});
+
+// Member dashboard
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'dashboard.html'));
+});
+
 // Fallback to index.html for SPA-ish routing using a middleware (avoids path-to-regexp)
 app.use((req, res, next) => {
     if (req.method === 'GET' && req.accepts && req.accepts('html')) {

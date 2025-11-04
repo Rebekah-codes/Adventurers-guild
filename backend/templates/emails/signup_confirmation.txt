@@ -1,0 +1,7 @@
+Hello {{ user.username }},
+
+Thanks for signing up to the Adventurers Guild.
+
+Your account is pending review by our admins. You'll receive an email when your account is approved.
+
+— Adventurers Guild

@@ -34,6 +34,20 @@ class SignupView(APIView):
         serializer = SignupSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        # Send signup confirmation email to the user
+        try:
+            subject = 'Thanks for signing up to Adventurers Guild'
+            message = f"Hello {user.username},\n\nThanks for signing up. Your account is pending review by the guild admins. You will be notified when it's approved.\n\n— Adventurers Guild"
+            user.email_user(subject, message, from_email=settings.DEFAULT_FROM_EMAIL)
+        except Exception:
+            pass
+
+        # Notify admins about new signup
+        try:
+            mail_admins('New signup', f'New signup: {user.username} / {user.email}', fail_silently=True)
+        except Exception:
+            pass
+
         return Response({'detail': 'User created. Await approval.'}, status=status.HTTP_201_CREATED)
 
 
@@ -53,6 +67,16 @@ class GuildApplicationViewSet(viewsets.ModelViewSet):
             mail_admins(subject, message, fail_silently=True)
         except Exception:
             # Don't fail the request if email fails
+            pass
+        # Optionally post to a webhook (Slack) if SLACK_WEBHOOK_URL configured
+        try:
+            import os, json, urllib.request
+            webhook = os.environ.get('SLACK_WEBHOOK_URL')
+            if webhook:
+                payload = { 'text': f"New guild application: {app.email} — Review: {app.id}" }
+                req = urllib.request.Request(webhook, data=json.dumps(payload).encode('utf-8'), headers={ 'Content-Type': 'application/json' })
+                urllib.request.urlopen(req, timeout=5)
+        except Exception:
             pass
 
 

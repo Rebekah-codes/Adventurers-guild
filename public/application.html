@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Apply to join • Adventurers Guild</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Apply to join the Adventurers Guild</h1>
+    <p>Please fill the form below and our admins will review your application.</p>
+    <form id="application-page-form">
+      <input name="email" type="email" placeholder="Email" required />
+      <input name="full_name" placeholder="Full name" />
+      <label>Skills</label>
+      <textarea name="skills" placeholder="List your skills"></textarea>
+      <label>Qualities / availability</label>
+      <textarea name="qualities" placeholder="Your qualities and availability"></textarea>
+      <label>Why do you want to join?</label>
+      <textarea name="additional_info" placeholder="Tell us why you'd be a good member"></textarea>
+      <button type="submit">Submit Application</button>
+    </form>
+    <p id="application-page-result"></p>
+  </main>
+
+  <script>
+    document.getElementById('application-page-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target;
+      const body = {
+        email: f.email.value,
+        full_name: f.full_name.value,
+        skills: f.skills.value,
+        qualities: f.qualities.value,
+        additional_info: f.additional_info.value,
+      };
+      const resEl = document.getElementById('application-page-result');
+      try {
+        const res = await fetch('/api/applications/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        if (!res.ok) throw new Error('Submission failed');
+        resEl.textContent = 'Application submitted — we will review it and get back to you.';
+      } catch (err) {
+        console.error(err);
+        resEl.textContent = 'Error submitting application.';
+      }
+    });
+  </script>
+</body>
+</html>
