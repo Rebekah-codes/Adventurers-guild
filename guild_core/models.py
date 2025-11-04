@@ -26,3 +26,50 @@ class Quest(models.Model):
 
     def __str__(self):
         return f"{self.title} [{self.status}]"
+
+
+class GuildApplication(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    user = models.OneToOneField('auth.User', on_delete=models.CASCADE, null=True, blank=True)
+    email = models.EmailField()
+    full_name = models.CharField(max_length=200, blank=True)
+    skills = models.TextField(blank=True)
+    qualities = models.TextField(blank=True)
+    additional_info = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Application {self.email} ({self.status})"
+
+    def approve(self, admin_user=None):
+        # Activate linked user if present, otherwise create a user
+        from django.contrib.auth.models import User
+        if not self.user:
+            # Create a user with unusable password; admin should set password/reset
+            username_base = self.email.split('@')[0]
+            username = username_base
+            i = 1
+            while User.objects.filter(username=username).exists():
+                username = f"{username_base}{i}"
+                i += 1
+            user = User.objects.create(username=username, email=self.email, is_active=True)
+            user.set_unusable_password()
+            user.save()
+            self.user = user
+        else:
+            self.user.is_active = True
+            self.user.save()
+
+        # Create GuildMember record if not present
+        from .models import GuildMember
+        if not hasattr(self.user, 'guildmember'):
+            GuildMember.objects.create(user=self.user)
+
+        self.status = 'approved'
+        self.save()
