@@ -14,24 +14,44 @@
 
   <main class="guild-main">
     <section class="quest-list">
-      <article class="quest">
-        <h2>🕷️ Purge the Spider Nest</h2>
-        <p><strong>Location:</strong> Whispering Hollow</p>
-        <p><strong>Reward:</strong> 200 gold + venomous fang trophy</p>
-        <p><strong>Status:</strong> Active</p>
-      </article>
-
-      <article class="quest">
-        <h2>🧌 Troll Bridge Siege</h2>
-        <p><strong>Location:</strong> Cracked Stone Crossing</p>
-        <p><strong>Reward:</strong> 500 gold + guild renown</p>
-        <p><strong>Status:</strong> Completed</p>
-      </article>
+      <!-- Quest list will be populated by JavaScript from /api/quests -->
+      <div id="quests-container">
+        <p>Loading quests…</p>
+      </div>
     </section>
   </main>
 
   <footer class="guild-footer">
     <p>Return to <a href="/">Guild Hall</a></p>
   </footer>
+
+  <script>
+    async function loadQuests() {
+      const container = document.getElementById('quests-container');
+      try {
+        const res = await fetch('/api/quests/');
+        if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
+        const data = await res.json();
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = '<p>No quests available right now.</p>';
+          return;
+        }
+        container.innerHTML = data.map(q => `
+          <article class="quest">
+            <h2>${q.title}</h2>
+            <p><strong>Location:</strong> ${q.location || 'Unknown'}</p>
+            <p><strong>Reward:</strong> ${q.reward || 'TBD'}</p>
+            <p><strong>Status:</strong> ${q.status}</p>
+            <p>${q.description || ''}</p>
+            <p class="meta">Posted by: ${q.posted_by || 'Anonymous'} — ${new Date(q.created_at).toLocaleString()}</p>
+          </article>
+        `).join('');
+      } catch (err) {
+        console.error('Error loading quests:', err);
+        container.innerHTML = '<p>Error loading quests. Try again later.</p>';
+      }
+    }
+    document.addEventListener('DOMContentLoaded', loadQuests);
+  </script>
 </body>
 </html>

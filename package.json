@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Rebekah-codes/Adventurers-guild#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "http-proxy-middleware": "^2.0.9"
   }
 }
