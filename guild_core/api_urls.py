@@ -18,4 +18,7 @@ urlpatterns += [
 	path('me/', api.MeView.as_view(), name='me'),
 	path('password-reset/', api.PasswordResetRequestView.as_view(), name='password_reset'),
 	path('password-reset-confirm/', api.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('applications/<int:pk>/approve/', api.ApplicationApproveView.as_view(), name='application_approve'),
+    path('applications/<int:pk>/reject/', api.ApplicationRejectView.as_view(), name='application_reject'),
+    path('debug/application-attempt/', api.DebugApplicationAttemptView.as_view(), name='debug_application_attempt'),
 ]
