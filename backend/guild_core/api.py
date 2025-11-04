@@ -72,58 +72,85 @@ class GuildApplicationViewSet(viewsets.ModelViewSet):
         if xff:
             ip = xff.split(',')[0].strip()
         else:
-            ip = self.request.META.get('REMOTE_ADDR')
+            ip = self.request.META.get('REMOTE_ADDR') or 'unknown'
 
-        # Check persistent honeypot/ban list
+        # Load spam tracking and settings
+        from django.utils import timezone
+        from django.conf import settings
+        now = timezone.now()
+
         try:
             attempt = ApplicationAttempt.objects.filter(ip=ip).first()
-            from django.utils import timezone
-            if attempt and attempt.blocked_until and attempt.blocked_until > timezone.now():
-                return Response({'detail': 'Too many requests'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
         except Exception:
             attempt = None
 
-        # If reCAPTCHA secret is configured, verify the token
-        import os, json, urllib.request, urllib.parse
-        recaptcha_secret = os.environ.get('RECAPTCHA_SECRET')
-        recaptcha_token = self.request.data.get('recaptcha_token')
-        if recaptcha_secret:
-            if not recaptcha_token:
-                return Response({'detail': 'recaptcha token required'}, status=status.HTTP_400_BAD_REQUEST)
-            try:
-                data = urllib.parse.urlencode({'secret': recaptcha_secret, 'response': recaptcha_token}).encode()
-                resp = urllib.request.urlopen('https://www.google.com/recaptcha/api/siteverify', data=data, timeout=10)
-                result = json.loads(resp.read().decode())
-                if not result.get('success'):
-                    return Response({'detail': 'recaptcha verification failed'}, status=status.HTTP_400_BAD_REQUEST)
-            except Exception:
-                return Response({'detail': 'recaptcha verification error'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Honeypot anti-spam: ignore submissions where the hidden field is filled
+        # If currently blocked until a future time, reject
         try:
-            hp = self.request.data.get('hp_field')
+            if attempt and attempt.blocked_until and attempt.blocked_until > now:
+                from rest_framework import exceptions
+                raise exceptions.ValidationError({'detail': 'Too many requests; try later.'})
         except Exception:
-            hp = None
+            # fall through
+            pass
+
+        # Honeypot check: immediate reject and count as a hit
+        hp = self.request.data.get('hp_field')
         if hp:
-            # Record the attempt
             try:
-                from django.utils import timezone
                 if not attempt:
-                    attempt = ApplicationAttempt.objects.create(ip=ip, hits=1)
+                    attempt = ApplicationAttempt.objects.create(ip=ip, email=(self.request.data.get('email') or None), count=1)
                 else:
-                    attempt.hits = (attempt.hits or 0) + 1
-                    attempt.last_seen = timezone.now()
-                    attempt.save()
-                # If threshold exceeded, block for 7 days
-                if attempt.hits >= 3:
-                    import datetime
-                    attempt.blocked_until = timezone.now() + datetime.timedelta(days=7)
-                    attempt.save()
+                    attempt.count = (attempt.count or 0) + 1
+                    attempt.last_attempt = now
+                # If repeated honeypot hits, block for a week
+                if attempt.count >= 3:
+                    attempt.blocked = True
+                    attempt.blocked_until = now + timezone.timedelta(days=7)
+                attempt.save()
             except Exception:
                 pass
-            # Treat as spam: raise validation error so client gets a 400
             from rest_framework import exceptions
             raise exceptions.ValidationError({'detail': 'Bad request'})
+
+        # Normal submission: enforce short-window cooldown and permanent block thresholds
+        try:
+            short_window_hours = getattr(settings, 'SPAM_SHORT_WINDOW_HOURS', 1)
+            short_limit = getattr(settings, 'SPAM_SHORT_LIMIT', 5)
+            cooldown_minutes = getattr(settings, 'SPAM_COOLDOWN_MINUTES', 30)
+            perm_limit = getattr(settings, 'SPAM_PERMANENT_LIMIT', 100)
+
+            if not attempt:
+                attempt = ApplicationAttempt.objects.create(ip=ip, email=(self.request.data.get('email') or None), count=1)
+            else:
+                # If first_attempt outside the window, reset counters
+                window_start = now - timezone.timedelta(hours=short_window_hours)
+                if attempt.first_attempt < window_start:
+                    attempt.count = 1
+                    attempt.first_attempt = now
+                else:
+                    attempt.count = (attempt.count or 0) + 1
+                attempt.last_attempt = now
+
+            # Permanent block
+            if attempt.count >= perm_limit:
+                attempt.blocked = True
+                attempt.blocked_until = None
+                attempt.save()
+                from rest_framework import exceptions
+                raise exceptions.ValidationError({'detail': 'Too many attempts'})
+
+            # Short-window cooldown
+            if attempt.count >= short_limit:
+                attempt.blocked = True
+                attempt.blocked_until = now + timezone.timedelta(minutes=cooldown_minutes)
+                attempt.save()
+                from rest_framework import exceptions
+                raise exceptions.ValidationError({'detail': 'Too many attempts; cooling down.'})
+
+            attempt.save()
+        except Exception:
+            # Do not prevent legitimate submissions if tracking fails
+            pass
 
         # Save the application record
         app = serializer.save()
@@ -172,6 +199,36 @@ class ApplicationRejectView(APIView):
         app.status = 'rejected'
         app.save()
         return Response({'detail': 'Application rejected.'})
+
+
+class DebugApplicationAttemptView(APIView):
+    """Debug endpoint to return the ApplicationAttempt for the requesting IP.
+    Restricted to admin users to avoid exposing attempt data publicly.
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        xff = request.META.get('HTTP_X_FORWARDED_FOR')
+        if xff:
+            ip = xff.split(',')[0].strip()
+        else:
+            ip = request.META.get('REMOTE_ADDR') or 'unknown'
+        try:
+            attempt = ApplicationAttempt.objects.filter(ip=ip).first()
+            if not attempt:
+                return Response({'detail': 'No attempt record for this IP.'}, status=status.HTTP_404_NOT_FOUND)
+            data = {
+                'ip': attempt.ip,
+                'email': attempt.email,
+                'count': attempt.count,
+                'first_attempt': attempt.first_attempt,
+                'last_attempt': attempt.last_attempt,
+                'blocked': attempt.blocked,
+                'blocked_until': attempt.blocked_until,
+            }
+            return Response(data)
+        except Exception as e:
+            return Response({'detail': 'Error retrieving attempt', 'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class MeView(APIView):
