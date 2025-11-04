@@ -103,3 +103,14 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 }
+
+# Email settings: use console backend by default for local dev. In production,
+# set DJANGO_EMAIL_BACKEND and relevant SMTP env vars (EMAIL_HOST, EMAIL_PORT, etc.).
+EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'no-reply@adventurers-guild.example')
+
+# Admins to notify about new applications (comma-separated)
+ADMINS = []
+if os.environ.get('DJANGO_ADMIN_EMAILS'):
+    ADMINS = [(a, a) for a in os.environ.get('DJANGO_ADMIN_EMAILS').split(',')]
+

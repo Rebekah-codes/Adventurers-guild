@@ -12,3 +12,10 @@ from django.urls import path
 urlpatterns += [
 	path('signup/', api.SignupView.as_view(), name='signup'),
 ]
+
+# Extra API endpoints
+urlpatterns += [
+	path('me/', api.MeView.as_view(), name='me'),
+	path('password-reset/', api.PasswordResetRequestView.as_view(), name='password_reset'),
+	path('password-reset-confirm/', api.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+]
