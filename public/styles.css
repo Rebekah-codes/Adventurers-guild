@@ -1,0 +1,51 @@
+body {
+  margin: 0;
+  font-family: 'Spectral', serif;
+  background: url('parchment-bg.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: #2e1f0f;
+}
+
+.guild-header {
+  text-align: center;
+  padding: 2rem;
+  background-color: rgba(34, 27, 20, 0.8);
+  color: #f5e6c8;
+  font-family: 'Uncial Antiqua', cursive;
+}
+
+.guild-main {
+  padding: 2rem;
+  max-width: 800px;
+  margin: auto;
+  background-color: rgba(245, 230, 200, 0.9);
+  border-radius: 10px;
+}
+
+.guild-main h2 {
+  font-family: 'Uncial Antiqua', cursive;
+  margin-top: 1.5rem;
+}
+
+.links ul {
+  list-style: none;
+  padding: 0;
+}
+
+.links li {
+  margin: 0.5rem 0;
+}
+
+.links a {
+  text-decoration: none;
+  color: #4b2e1e;
+  font-weight: bold;
+}
+
+.guild-footer {
+  text-align: center;
+  padding: 1rem;
+  font-size: 0.9rem;
+  background-color: rgba(34, 27, 20, 0.8);
+  color: #f5e6c8;
+}
