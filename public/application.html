@@ -11,6 +11,8 @@
     <h1>Apply to join the Adventurers Guild</h1>
     <p>Please fill the form below and our admins will review your application.</p>
     <form id="application-page-form">
+      <!-- Honeypot field to trap bots; keep it hidden from users -->
+      <input type="text" name="hp_field" id="hp_field" style="display:none" tabindex="-1" autocomplete="off" />
       <input name="email" type="email" placeholder="Email" required />
       <input name="full_name" placeholder="Full name" />
       <label>Skills</label>
@@ -48,6 +50,7 @@
         const body = {
           email: f.email.value,
           full_name: f.full_name.value,
+          hp_field: f.hp_field.value,
           skills: f.skills.value,
           qualities: f.qualities.value,
           additional_info: f.additional_info.value,

@@ -24,6 +24,8 @@
   <section class="application">
     <h3>Apply to join the Guild</h3>
     <form id="application-form">
+      <!-- Honeypot field to trap bots; hidden from users -->
+      <input type="text" name="hp_field" id="hp_field_quests" style="display:none" tabindex="-1" autocomplete="off" />
       <input name="email" type="email" placeholder="Email" required />
       <input name="full_name" placeholder="Full name" />
       <label>Skills (comma separated)</label>
@@ -167,6 +169,7 @@
         const body = {
           email: f.email.value,
           full_name: f.full_name.value,
+          hp_field: f.hp_field ? f.hp_field.value : document.getElementById('hp_field_quests').value,
           skills: f.skills.value,
           qualities: f.qualities.value,
           additional_info: f.additional_info.value,

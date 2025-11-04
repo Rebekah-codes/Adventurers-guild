@@ -67,6 +67,16 @@ class GuildApplicationViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
     def perform_create(self, serializer):
+        # Honeypot anti-spam: ignore submissions where the hidden field is filled
+        try:
+            hp = self.request.data.get('hp_field')
+        except Exception:
+            hp = None
+        if hp:
+            # Treat as spam: raise validation error so client gets a 400
+            from rest_framework import exceptions
+            raise exceptions.ValidationError({'detail': 'Bad request'})
+
         # Save the application record
         app = serializer.save()
         # Notify admins via email (may be console backend)
