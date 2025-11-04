@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Quest Board • Adventurers Guild</title>
   <link rel="stylesheet" href="styles.css" />
+  <script src="/config.js"></script>
 </head>
 <body>
   <header class="guild-header">
@@ -174,12 +175,35 @@
           qualities: f.qualities.value,
           additional_info: f.additional_info.value,
         };
-        try {
-          const res = await fetch('/api/applications/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-          });
+          try {
+            // reCAPTCHA token (if configured)
+            async function getRecaptchaToken(){
+              try{
+                if (!window.RECAPTCHA_SITE_KEY) return null;
+                if (!window.grecaptchaScriptInjected){
+                  const s = document.createElement('script');
+                  s.src = 'https://www.google.com/recaptcha/api.js?render=' + window.RECAPTCHA_SITE_KEY;
+                  document.head.appendChild(s);
+                  window.grecaptchaScriptInjected = true;
+                  await new Promise(r => s.onload = r);
+                }
+                if (window.grecaptcha){
+                  return await window.grecaptcha.execute(window.RECAPTCHA_SITE_KEY, {action: 'application'});
+                }
+              }catch(e){
+                return null;
+              }
+              return null;
+            }
+
+            const token = await getRecaptchaToken();
+            if (token) body.recaptcha_token = token;
+
+            const res = await fetch('/api/applications/', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(body)
+            });
           if (!res.ok) {
             const text = await res.text();
             throw new Error(text || res.statusText || 'Application submission failed');

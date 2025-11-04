@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import SignupSerializer, GuildApplicationSerializer
-from .models import GuildApplication
+from .models import GuildApplication, ApplicationAttempt
 from django.core.mail import mail_admins
 from django.conf import settings
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -67,12 +67,60 @@ class GuildApplicationViewSet(viewsets.ModelViewSet):
         return [permissions.IsAdminUser()]
 
     def perform_create(self, serializer):
+        # Determine client IP (X-Forwarded-For if behind proxy)
+        xff = self.request.META.get('HTTP_X_FORWARDED_FOR')
+        if xff:
+            ip = xff.split(',')[0].strip()
+        else:
+            ip = self.request.META.get('REMOTE_ADDR')
+
+        # Check persistent honeypot/ban list
+        try:
+            attempt = ApplicationAttempt.objects.filter(ip=ip).first()
+            from django.utils import timezone
+            if attempt and attempt.blocked_until and attempt.blocked_until > timezone.now():
+                return Response({'detail': 'Too many requests'}, status=status.HTTP_429_TOO_MANY_REQUESTS)
+        except Exception:
+            attempt = None
+
+        # If reCAPTCHA secret is configured, verify the token
+        import os, json, urllib.request, urllib.parse
+        recaptcha_secret = os.environ.get('RECAPTCHA_SECRET')
+        recaptcha_token = self.request.data.get('recaptcha_token')
+        if recaptcha_secret:
+            if not recaptcha_token:
+                return Response({'detail': 'recaptcha token required'}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                data = urllib.parse.urlencode({'secret': recaptcha_secret, 'response': recaptcha_token}).encode()
+                resp = urllib.request.urlopen('https://www.google.com/recaptcha/api/siteverify', data=data, timeout=10)
+                result = json.loads(resp.read().decode())
+                if not result.get('success'):
+                    return Response({'detail': 'recaptcha verification failed'}, status=status.HTTP_400_BAD_REQUEST)
+            except Exception:
+                return Response({'detail': 'recaptcha verification error'}, status=status.HTTP_400_BAD_REQUEST)
+
         # Honeypot anti-spam: ignore submissions where the hidden field is filled
         try:
             hp = self.request.data.get('hp_field')
         except Exception:
             hp = None
         if hp:
+            # Record the attempt
+            try:
+                from django.utils import timezone
+                if not attempt:
+                    attempt = ApplicationAttempt.objects.create(ip=ip, hits=1)
+                else:
+                    attempt.hits = (attempt.hits or 0) + 1
+                    attempt.last_seen = timezone.now()
+                    attempt.save()
+                # If threshold exceeded, block for 7 days
+                if attempt.hits >= 3:
+                    import datetime
+                    attempt.blocked_until = timezone.now() + datetime.timedelta(days=7)
+                    attempt.save()
+            except Exception:
+                pass
             # Treat as spam: raise validation error so client gets a 400
             from rest_framework import exceptions
             raise exceptions.ValidationError({'detail': 'Bad request'})

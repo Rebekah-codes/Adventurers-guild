@@ -73,3 +73,14 @@ class GuildApplication(models.Model):
 
         self.status = 'approved'
         self.save()
+
+
+class ApplicationAttempt(models.Model):
+    """Track application attempts by IP to implement persistent honeypot cooldown/blocking."""
+    ip = models.CharField(max_length=45, unique=True)
+    hits = models.IntegerField(default=0)
+    last_seen = models.DateTimeField(auto_now=True)
+    blocked_until = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Attempt {self.ip}: {self.hits} hits"

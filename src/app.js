@@ -42,6 +42,13 @@ app.get('/application', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'application.html'));
 });
 
+// Serve a small JS snippet exposing runtime frontend config (e.g., reCAPTCHA site key)
+app.get('/config.js', (req, res) => {
+    const siteKey = process.env.RECAPTCHA_SITE_KEY || '';
+    res.type('application/javascript');
+    res.send(`window.RECAPTCHA_SITE_KEY = ${JSON.stringify(siteKey)};`);
+});
+
 // Set password page
 app.get('/set-password', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'public', 'set-password.html'));
