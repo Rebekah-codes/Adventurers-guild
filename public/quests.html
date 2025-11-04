@@ -21,6 +21,22 @@
     </section>
   </main>
 
+  <section class="application">
+    <h3>Apply to join the Guild</h3>
+    <form id="application-form">
+      <input name="email" type="email" placeholder="Email" required />
+      <input name="full_name" placeholder="Full name" />
+      <label>Skills (comma separated)</label>
+      <textarea name="skills" placeholder="List your skills"></textarea>
+      <label>Qualities / checklist</label>
+      <textarea name="qualities" placeholder="Your qualities, experience, availability"></textarea>
+      <label>Additional information</label>
+      <textarea name="additional_info" placeholder="Anything else to help your application"></textarea>
+      <button type="submit">Submit Application</button>
+    </form>
+    <p id="application-result"></p>
+  </section>
+
   <footer class="guild-footer">
     <p>Return to <a href="/">Guild Hall</a></p>
   </footer>
@@ -129,6 +145,49 @@
         resEl.textContent = 'Error posting quest.';
       }
     });
+    // Application form handler
+    document.getElementById('application-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target;
+      const body = {
+        email: f.email.value,
+        full_name: f.full_name.value,
+        skills: f.skills.value,
+        qualities: f.qualities.value,
+        additional_info: f.additional_info.value,
+      };
+      const resEl = document.getElementById('application-result');
+      try {
+        const res = await fetch('/api/applications/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error('Application submission failed: ' + res.status);
+        resEl.textContent = 'Application submitted. You will be notified after review.';
+      } catch (err) {
+        console.error('Application error', err);
+        resEl.textContent = 'Error submitting application.';
+      }
+    });
+
+    // Member check: show/hide member-only content
+    async function checkMembership() {
+      const token = localStorage.getItem('apiToken');
+      if (!token) return; // not logged in
+      try {
+        const res = await fetch('/api/me/', { headers: token ? { 'Authorization': 'Token ' + token } : {} });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.is_member) {
+          // mark page as member
+          document.body.classList.add('is-member');
+        }
+      } catch (err) {
+        console.error('Membership check failed', err);
+      }
+    }
+    checkMembership();
   </script>
 </body>
 </html>
