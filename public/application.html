@@ -19,32 +19,58 @@
       <textarea name="qualities" placeholder="Your qualities and availability"></textarea>
       <label>Why do you want to join?</label>
       <textarea name="additional_info" placeholder="Tell us why you'd be a good member"></textarea>
-      <button type="submit">Submit Application</button>
+      <button type="submit" id="application-submit">Submit Application</button>
     </form>
     <p id="application-page-result"></p>
   </main>
 
   <script>
-    document.getElementById('application-page-form').addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      const f = ev.target;
-      const body = {
-        email: f.email.value,
-        full_name: f.full_name.value,
-        skills: f.skills.value,
-        qualities: f.qualities.value,
-        additional_info: f.additional_info.value,
-      };
+    (function(){
+      const form = document.getElementById('application-page-form');
+      const submitBtn = document.getElementById('application-submit');
       const resEl = document.getElementById('application-page-result');
-      try {
-        const res = await fetch('/api/applications/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-        if (!res.ok) throw new Error('Submission failed');
-        resEl.textContent = 'Application submitted — we will review it and get back to you.';
-      } catch (err) {
-        console.error(err);
-        resEl.textContent = 'Error submitting application.';
+      let cooldown = false;
+
+      function showMessage(text, type) {
+        resEl.textContent = '';
+        resEl.className = 'form-message ' + (type === 'ok' ? 'success' : 'error');
+        resEl.textContent = text;
       }
-    });
+
+      form.addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        if (cooldown) return showMessage('Please wait before submitting another application.', 'error');
+        const f = ev.target;
+        // Basic client-side validation
+        if (!f.email.value) return showMessage('Please enter an email.', 'error');
+        submitBtn.classList.add('btn-disabled');
+        submitBtn.disabled = true;
+        const body = {
+          email: f.email.value,
+          full_name: f.full_name.value,
+          skills: f.skills.value,
+          qualities: f.qualities.value,
+          additional_info: f.additional_info.value,
+        };
+        try {
+          const res = await fetch('/api/applications/', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          if (!res.ok) {
+            const text = await res.text();
+            throw new Error(text || res.statusText || 'Submission failed');
+          }
+          showMessage('Application submitted — we will review it and get back to you.', 'ok');
+          f.reset();
+          // client-side cooldown to avoid accidental reps
+          cooldown = true;
+          setTimeout(() => { cooldown = false; submitBtn.classList.remove('btn-disabled'); submitBtn.disabled = false; }, 30000);
+        } catch (err) {
+          console.error(err);
+          showMessage('Error submitting application. Please try again later.', 'error');
+          submitBtn.classList.remove('btn-disabled');
+          submitBtn.disabled = false;
+        }
+      });
+    })();
   </script>
 </body>
 </html>

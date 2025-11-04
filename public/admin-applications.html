@@ -1,0 +1,84 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Applications • Adventurers Guild</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Pending Applications</h1>
+    <p id="notice">Loading…</p>
+    <div id="apps"></div>
+  </main>
+
+  <script>
+    async function init() {
+      const token = localStorage.getItem('apiToken');
+      if (!token) {
+        document.getElementById('notice').textContent = 'You must log in as an admin (token) to view this page.';
+        return;
+      }
+      try {
+        // Verify admin status
+        const me = await fetch('/api/me/', { headers: { 'Authorization': 'Token ' + token } });
+        if (!me.ok) throw new Error('Failed to fetch /api/me/');
+        const meData = await me.json();
+        if (!meData.is_staff) {
+          document.getElementById('notice').textContent = 'You are not an admin.';
+          return;
+        }
+
+        document.getElementById('notice').textContent = '';
+        await loadApplications(token);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('notice').textContent = 'Error loading admin page.';
+      }
+    }
+
+    async function loadApplications(token) {
+      const res = await fetch('/api/applications/', { headers: { 'Authorization': 'Token ' + token } });
+      if (!res.ok) {
+        document.getElementById('notice').textContent = 'Failed to load applications.';
+        return;
+      }
+      const data = await res.json();
+      const container = document.getElementById('apps');
+      if (!Array.isArray(data) || data.length === 0) {
+        container.innerHTML = '<p>No applications found.</p>';
+        return;
+      }
+      container.innerHTML = data.map(a => `
+        <article class="application-item" id="app-${a.id}">
+          <h3>${a.full_name || a.email} — <small>${a.status}</small></h3>
+          <p><strong>Email:</strong> ${a.email}</p>
+          <p><strong>Skills:</strong><br/>${(a.skills||'').replace(/\n/g,'<br/>')}</p>
+          <p><strong>Qualities:</strong><br/>${(a.qualities||'').replace(/\n/g,'<br/>')}</p>
+          <p><strong>Additional info:</strong><br/>${(a.additional_info||'').replace(/\n/g,'<br/>')}</p>
+          <p><button data-id="${a.id}" class="approve">Approve</button> <button data-id="${a.id}" class="reject">Reject</button></p>
+        </article>
+      `).join('');
+
+      document.querySelectorAll('.approve').forEach(btn => btn.addEventListener('click', ev => handleAction(ev, token, 'approve')));
+      document.querySelectorAll('.reject').forEach(btn => btn.addEventListener('click', ev => handleAction(ev, token, 'reject')));
+    }
+
+    async function handleAction(ev, token, action) {
+      const id = ev.target.getAttribute('data-id');
+      try {
+        const res = await fetch(`/api/applications/${id}/${action}/`, { method: 'POST', headers: { 'Authorization': 'Token ' + token } });
+        if (!res.ok) throw new Error('Action failed: ' + res.status);
+        // refresh
+        await loadApplications(token);
+      } catch (err) {
+        console.error(err);
+        alert('Action failed. Check console/logs.');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

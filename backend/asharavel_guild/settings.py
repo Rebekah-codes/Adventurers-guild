@@ -104,6 +104,16 @@ REST_FRAMEWORK = {
     ],
 }
 
+# Throttling: limit application submissions to prevent spam. The
+# specific rate for the 'application' scope is configured here.
+REST_FRAMEWORK.setdefault('DEFAULT_THROTTLE_CLASSES', [
+    'rest_framework.throttling.AnonRateThrottle',
+])
+REST_FRAMEWORK.setdefault('DEFAULT_THROTTLE_RATES', {
+    'anon': '100/day',
+    'application': '10/hour',
+})
+
 # Email settings: use console backend by default for local dev. In production,
 # set DJANGO_EMAIL_BACKEND and relevant SMTP env vars (EMAIL_HOST, EMAIL_PORT, etc.).
 EMAIL_BACKEND = os.environ.get('DJANGO_EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')

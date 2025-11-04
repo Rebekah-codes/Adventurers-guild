@@ -51,22 +51,30 @@ class SignupView(APIView):
         return Response({'detail': 'User created. Await approval.'}, status=status.HTTP_201_CREATED)
 
 
+from .throttles import ApplicationRateThrottle
+
+
 class GuildApplicationViewSet(viewsets.ModelViewSet):
     queryset = GuildApplication.objects.order_by('-created_at')
     serializer_class = GuildApplicationSerializer
-    permission_classes = [permissions.AllowAny]
+    throttle_classes = [ApplicationRateThrottle]
+
+    def get_permissions(self):
+        """Allow anyone to create applications, but restrict listing/retrieving/updating/deleting to admins."""
+        if self.action == 'create':
+            return [permissions.AllowAny()]
+        # For safe public reads we restrict to admins to avoid exposing applicant data
+        return [permissions.IsAdminUser()]
 
     def perform_create(self, serializer):
-        # If the user exists link, else leave user null
+        # Save the application record
         app = serializer.save()
-        # Notify admins via email
+        # Notify admins via email (may be console backend)
         try:
             subject = f"New guild application: {app.email}"
             message = f"A new application was submitted by {app.full_name or app.email}.\n\nSkills:\n{app.skills}\n\nQualities:\n{app.qualities}\n\nAdditional info:\n{app.additional_info}\n\nReview it in the admin: /admin/guild_core/guildapplication/{app.id}/change/"
-            # mail_admins will use ADMINS from settings
             mail_admins(subject, message, fail_silently=True)
         except Exception:
-            # Don't fail the request if email fails
             pass
         # Optionally post to a webhook (Slack) if SLACK_WEBHOOK_URL configured
         try:
@@ -80,12 +88,40 @@ class GuildApplicationViewSet(viewsets.ModelViewSet):
             pass
 
 
+class ApplicationApproveView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, pk):
+        try:
+            app = GuildApplication.objects.get(pk=pk)
+        except GuildApplication.DoesNotExist:
+            return Response({'detail': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            app.approve(admin_user=request.user)
+            return Response({'detail': 'Application approved.'})
+        except Exception as e:
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ApplicationRejectView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request, pk):
+        try:
+            app = GuildApplication.objects.get(pk=pk)
+        except GuildApplication.DoesNotExist:
+            return Response({'detail': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+        app.status = 'rejected'
+        app.save()
+        return Response({'detail': 'Application rejected.'})
+
+
 class MeView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         user = request.user if request.user and request.user.is_authenticated else None
-        data = {'is_authenticated': bool(user), 'username': user.username if user else None, 'is_member': False}
+        data = {'is_authenticated': bool(user), 'username': user.username if user else None, 'is_member': False, 'is_staff': bool(user.is_staff) if user else False}
         if user:
             # check guild member
             try:

@@ -71,3 +71,9 @@ body {
 .quest p {
   margin: 0.25rem 0;
 }
+
+/* Form feedback */
+.form-message { padding: 0.6rem 0.8rem; border-radius: 6px; margin-top: 0.6rem; }
+.form-message.success { background: #e6f9ea; color: #1b6b2b; border: 1px solid #bfe6c9; }
+.form-message.error { background: #ffecec; color: #7b1b1b; border: 1px solid #f1b3b3; }
+.btn-disabled { opacity: 0.6; pointer-events: none; }
