@@ -53,5 +53,82 @@
     }
     document.addEventListener('DOMContentLoaded', loadQuests);
   </script>
+
+  <section class="auth">
+    <h3>Member login</h3>
+    <form id="login-form">
+      <input name="username" placeholder="username" required />
+      <input name="password" type="password" placeholder="password" required />
+      <button type="submit">Log in</button>
+    </form>
+    <p id="login-result"></p>
+
+    <h3>Post a Quest (authenticated)</h3>
+    <form id="post-quest-form">
+      <input name="title" placeholder="Title" required />
+      <input name="location" placeholder="Location" />
+      <input name="reward" placeholder="Reward" />
+      <textarea name="description" placeholder="Description"></textarea>
+      <button type="submit">Post Quest</button>
+    </form>
+    <p id="post-result"></p>
+  </section>
+
+  <script>
+    // Login form handler - obtain token
+    document.getElementById('login-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target;
+      const creds = { username: f.username.value, password: f.password.value };
+      const resEl = document.getElementById('login-result');
+      try {
+        const res = await fetch('/api-token-auth/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(creds)
+        });
+        if (!res.ok) throw new Error('Login failed: ' + res.status);
+        const data = await res.json();
+        localStorage.setItem('apiToken', data.token);
+        resEl.textContent = 'Logged in successfully.';
+      } catch (err) {
+        console.error('Login error', err);
+        resEl.textContent = 'Login failed.';
+      }
+    });
+
+    // Post quest form handler
+    document.getElementById('post-quest-form').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const f = ev.target;
+      const token = localStorage.getItem('apiToken');
+      const body = {
+        title: f.title.value,
+        location: f.location.value,
+        reward: f.reward.value,
+        description: f.description.value,
+      };
+      const resEl = document.getElementById('post-result');
+      try {
+        const res = await fetch('/api/quests/', {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json' }, token ? { 'Authorization': 'Token ' + token } : {}),
+          body: JSON.stringify(body)
+        });
+        if (res.status === 401 || res.status === 403) {
+          resEl.textContent = 'You must be logged in to post a quest.';
+          return;
+        }
+        if (!res.ok) throw new Error('Post failed: ' + res.status);
+        const data = await res.json();
+        resEl.textContent = 'Quest posted.';
+        // Refresh the list
+        loadQuests();
+      } catch (err) {
+        console.error('Post error', err);
+        resEl.textContent = 'Error posting quest.';
+      }
+    });
+  </script>
 </body>
 </html>
