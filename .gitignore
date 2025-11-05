@@ -1,0 +1,19 @@
+# Node
+node_modules/
+
+# Python
+__pycache__/
+*.py[cod]
+.Python
+env/
+.venv/
+
+# OS
+.DS_Store
+
+# Editor
+.vscode/
+*.swp
+
+# Heroku build artifacts
+/.cache/
