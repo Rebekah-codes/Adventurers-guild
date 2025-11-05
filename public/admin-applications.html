@@ -8,12 +8,15 @@
 </head>
 <body>
   <main class="container">
-    <h1>Pending Applications</h1>
+    <h1>Pending Applications <span id="new-badge" style="display:none">● New</span></h1>
     <p id="notice">Loading…</p>
     <div id="apps"></div>
   </main>
 
   <script>
+    let lastFirstId = null;
+    let pollInterval = 15000; // 15s
+
     async function init() {
       const token = localStorage.getItem('apiToken');
       if (!token) {
@@ -31,14 +34,24 @@
         }
 
         document.getElementById('notice').textContent = '';
-        await loadApplications(token);
+        await loadApplications(token, {initial: true});
+        // start polling
+        setInterval(() => loadApplications(token, {polling: true}), pollInterval);
       } catch (err) {
         console.error(err);
         document.getElementById('notice').textContent = 'Error loading admin page.';
       }
     }
 
-    async function loadApplications(token) {
+    function showNewBadge() {
+      const b = document.getElementById('new-badge');
+      b.style.display = 'inline-block';
+      b.classList.add('flash');
+      setTimeout(() => b.classList.remove('flash'), 2000);
+    }
+
+    async function loadApplications(token, opts = {}) {
+      const { polling=false, initial=false } = opts;
       const res = await fetch('/api/applications/', { headers: { 'Authorization': 'Token ' + token } });
       if (!res.ok) {
         document.getElementById('notice').textContent = 'Failed to load applications.';
@@ -50,6 +63,15 @@
         container.innerHTML = '<p>No applications found.</p>';
         return;
       }
+      // detect new applications (compare first id)
+      const currentFirstId = data[0].id;
+      if (lastFirstId && currentFirstId !== lastFirstId) {
+        // there's a new submission at the top
+        showNewBadge();
+        // optional: play short beep
+        try { new Audio('/notify.wav').play().catch(()=>{}); } catch(e){}
+      }
+      lastFirstId = currentFirstId;
       container.innerHTML = data.map(a => `
         <article class="application-item" id="app-${a.id}">
           <h3>${a.full_name || a.email} — <small>${a.status}</small></h3>
