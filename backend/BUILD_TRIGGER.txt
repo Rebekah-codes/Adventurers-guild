@@ -1,0 +1,2 @@
+Trigger file to force a Heroku rebuild.
+Timestamp: 2025-11-05 00:00:00 UTC
