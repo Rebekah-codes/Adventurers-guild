@@ -21,13 +21,13 @@
     video.loop = false; // play once like a gif
     video.setAttribute('preload','auto');
 
-    // when the video ends, auto-close the overlay (behave like a gif that finishes)
-    video.addEventListener('ended', ()=>{
-      if (overlay && overlay.parentNode) {
-        try { localStorage.setItem(STORAGE_KEY,'1'); } catch(e){}
-        overlay.parentNode.removeChild(overlay);
-      }
-    });
+    // DO NOT auto-close when the video ends — keep the overlay on screen until
+    // the user explicitly clicks the Close button. This helps testing because
+    // it prevents the overlay from vanishing immediately at the end of playback.
+    // The video will play once (video.loop = false) but we intentionally leave
+    // the overlay in place; the Close button handler will remove it and set
+    // the storage flag.
+    // (No 'ended' listener here.)
 
     // close button
     const close = document.createElement('button');
@@ -38,7 +38,25 @@
       try { localStorage.setItem(STORAGE_KEY,'1'); } catch(e){}
     });
 
+    // custom play overlay (shown when autoplay is blocked). We avoid using
+    // native controls so the animation looks like a GIF. The play button is
+    // centered over the video and will attempt to play on user gesture.
+    const play = document.createElement('button');
+    play.className = 'scroll-video-play';
+    play.setAttribute('aria-label','Play animation');
+    play.innerHTML = '<svg viewBox="0 0 100 100" width="40" height="40" aria-hidden="true"><polygon points="30,20 80,50 30,80" fill="currentColor"/></svg>';
+    play.style.display = 'none'; // hidden by default; shown if autoplay blocked
+    play.addEventListener('click', async ()=>{
+      try {
+        await video.play();
+        play.style.display = 'none';
+      } catch(e){
+        // If still blocked, keep the play button visible — user must allow.
+      }
+    });
+
     wrap.appendChild(video);
+    wrap.appendChild(play);
     wrap.appendChild(close);
     overlay.appendChild(wrap);
     return {overlay, video};
@@ -60,13 +78,19 @@
     const {overlay, video} = createOverlay();
     document.body.appendChild(overlay);
 
-    // ensure video plays (some browsers may block, but muted autoplay usually allowed)
-    const tryPlay = ()=>{
-      const p = video.play();
-      if (p && p.catch) p.catch(()=>{
-        // show native controls as fallback
-        video.controls = true;
-      });
+    // ensure video plays (some browsers may block autoplay even when muted).
+    // If autoplay is blocked, show the custom play overlay rather than
+    // enabling native controls — this keeps the visual clean and consistent.
+    const playOverlay = overlay.querySelector('.scroll-video-play');
+    const tryPlay = async ()=>{
+      try {
+        const p = video.play();
+        if (p && p.catch) await p;
+        // if play succeeded, ensure the custom play UI is hidden
+        if (playOverlay) playOverlay.style.display = 'none';
+      } catch(err){
+        if (playOverlay) playOverlay.style.display = 'flex';
+      }
     };
 
   // small delay to let styles load

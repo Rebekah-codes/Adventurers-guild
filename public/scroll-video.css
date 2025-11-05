@@ -11,7 +11,14 @@
 }
 .scroll-video-wrap{position:relative; max-width:100vw; width:min(1280px,94vw); display:flex; align-items:center; justify-content:center}
 /* show the video as if it were a gif: no box, no rounded corners, no drop shadow */
-.scroll-video-wrap video{display:block; width:100%; height:auto; border-radius:0; box-shadow:none; background:transparent}
+.scroll-video-wrap video{display:block; width:100%; height:auto; border-radius:0; box-shadow:none; background:transparent; object-fit:contain}
+.scroll-video-wrap video::-internal-media-controls { display:none; }
+
+/* custom play overlay when autoplay is blocked */
+.scroll-video-play{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:2; background:transparent; border:none; cursor:pointer; color:#e6f9fb}
+.scroll-video-play svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));}
+.scroll-video-play{font-size:24px}
+.scroll-video-play:focus{outline:3px solid rgba(14,165,177,0.18); border-radius:999px}
 .scroll-video-close{position:absolute; right:8px; top:8px; background:linear-gradient(90deg,#6d28d9,#0ea5b1); color:#041414; border:none; padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:800}
 .scroll-video-close:focus{outline:3px solid rgba(14,165,177,0.18)}
 
