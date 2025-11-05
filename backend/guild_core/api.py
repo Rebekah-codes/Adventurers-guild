@@ -98,13 +98,12 @@ class GuildApplicationViewSet(viewsets.ModelViewSet):
         if hp:
             try:
                 if not attempt:
-                    attempt = ApplicationAttempt.objects.create(ip=ip, email=(self.request.data.get('email') or None), count=1)
+                    attempt = ApplicationAttempt.objects.create(ip=ip, hits=1)
                 else:
-                    attempt.count = (attempt.count or 0) + 1
-                    attempt.last_attempt = now
+                    attempt.hits = (attempt.hits or 0) + 1
+                    attempt.last_seen = now
                 # If repeated honeypot hits, block for a week
-                if attempt.count >= 3:
-                    attempt.blocked = True
+                if attempt.hits >= 3:
                     attempt.blocked_until = now + timezone.timedelta(days=7)
                 attempt.save()
             except Exception:
@@ -120,28 +119,26 @@ class GuildApplicationViewSet(viewsets.ModelViewSet):
             perm_limit = getattr(settings, 'SPAM_PERMANENT_LIMIT', 100)
 
             if not attempt:
-                attempt = ApplicationAttempt.objects.create(ip=ip, email=(self.request.data.get('email') or None), count=1)
+                attempt = ApplicationAttempt.objects.create(ip=ip, hits=1)
             else:
-                # If first_attempt outside the window, reset counters
+                # If last_seen outside the window, reset counters
                 window_start = now - timezone.timedelta(hours=short_window_hours)
-                if attempt.first_attempt < window_start:
-                    attempt.count = 1
-                    attempt.first_attempt = now
+                if attempt.last_seen < window_start:
+                    attempt.hits = 1
                 else:
-                    attempt.count = (attempt.count or 0) + 1
-                attempt.last_attempt = now
+                    attempt.hits = (attempt.hits or 0) + 1
+                attempt.last_seen = now
 
             # Permanent block
-            if attempt.count >= perm_limit:
-                attempt.blocked = True
-                attempt.blocked_until = None
+            if attempt.hits >= perm_limit:
+                # represent permanent block by setting blocked_until far in the future
+                attempt.blocked_until = now + timezone.timedelta(days=36500)
                 attempt.save()
                 from rest_framework import exceptions
                 raise exceptions.ValidationError({'detail': 'Too many attempts'})
 
             # Short-window cooldown
-            if attempt.count >= short_limit:
-                attempt.blocked = True
+            if attempt.hits >= short_limit:
                 attempt.blocked_until = now + timezone.timedelta(minutes=cooldown_minutes)
                 attempt.save()
                 from rest_framework import exceptions
@@ -219,11 +216,8 @@ class DebugApplicationAttemptView(APIView):
                 return Response({'detail': 'No attempt record for this IP.'}, status=status.HTTP_404_NOT_FOUND)
             data = {
                 'ip': attempt.ip,
-                'email': attempt.email,
-                'count': attempt.count,
-                'first_attempt': attempt.first_attempt,
-                'last_attempt': attempt.last_attempt,
-                'blocked': attempt.blocked,
+                'hits': attempt.hits,
+                'last_seen': attempt.last_seen,
                 'blocked_until': attempt.blocked_until,
             }
             return Response(data)

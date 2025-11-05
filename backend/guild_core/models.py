@@ -76,21 +76,13 @@ class GuildApplication(models.Model):
 
 
 class ApplicationAttempt(models.Model):
-    """Track attempts per IP (and optionally per email) to enforce cooldowns/blocks."""
-    ip = models.CharField(max_length=100, db_index=True)
-    email = models.EmailField(blank=True, null=True, db_index=True)
-    count = models.PositiveIntegerField(default=0)
-    first_attempt = models.DateTimeField(auto_now_add=True)
-    last_attempt = models.DateTimeField(auto_now=True)
-    blocked = models.BooleanField(default=False)
-    blocked_until = models.DateTimeField(null=True, blank=True)
+    """Track application attempts by IP to implement persistent honeypot cooldowning.
 
-    def __str__(self):
-        return f"Attempt {self.ip} ({self.count}){' blocked' if self.blocked else ''}"
-
-
-class ApplicationAttempt(models.Model):
-    """Track application attempts by IP to implement persistent honeypot cooldown/blocking."""
+    This model is the single source of truth for persistent anti-spam tracking. It
+    stores a unique IP, a running hit count, the last-seen timestamp and an
+    optional `blocked_until` datetime which, if set to a future time, indicates
+    the IP is currently blocked.
+    """
     ip = models.CharField(max_length=45, unique=True)
     hits = models.IntegerField(default=0)
     last_seen = models.DateTimeField(auto_now=True)
