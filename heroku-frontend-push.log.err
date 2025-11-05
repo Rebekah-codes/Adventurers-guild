@@ -1,0 +1,71 @@
+remote: Updated 22 paths from 2d53566        
+remote: Compressing source files... done.        
+remote: Building source:        
+remote: 
+remote: -----> Building on the Heroku-24 stack        
+remote: -----> Using buildpack: heroku/nodejs        
+remote: -----> Node.js app detected        
+remote:                
+remote: -----> Creating runtime environment        
+remote:                
+remote:        NPM_CONFIG_LOGLEVEL=error        
+remote:        NODE_VERBOSE=false        
+remote:        NODE_ENV=production        
+remote:        NODE_MODULES_CACHE=true        
+remote:                
+remote: -----> Installing binaries        
+remote:        engines.node (package.json):   22.x        
+remote:        engines.npm (package.json):    10.x        
+remote:                
+remote:        Resolving node version 22.x...        
+remote:        Downloading and installing node 22.21.1...        
+remote:        Validating checksum        
+remote:        Bootstrapping npm 10.x (replacing 10.9.4)...        
+remote:        npm 10.9.4 installed        
+remote:                
+remote: -----> Restoring cache        
+remote:        - node_modules        
+remote:                
+remote: -----> Installing dependencies        
+remote:        Installing node modules (package.json)        
+remote:                
+remote:        up to date, audited 49 packages in 478ms        
+remote:                
+remote:        15 packages are looking for funding        
+remote:          run `npm fund` for details        
+remote:                
+remote:        found 0 vulnerabilities        
+remote:        npm notice        
+remote:        npm notice New major version of npm available! 10.9.4 -> 11.6.2        
+remote:        npm notice Changelog: https://github.com/npm/cli/releases/tag/v11.6.2        
+remote:        npm notice To update run: npm install -g npm@11.6.2        
+remote:        npm notice        
+remote:                
+remote: -----> Build        
+remote:                
+remote: -----> Caching build        
+remote:        - node_modules        
+remote:                
+remote: -----> Pruning devDependencies        
+remote:                
+remote:        up to date, audited 49 packages in 509ms        
+remote:                
+remote:        15 packages are looking for funding        
+remote:          run `npm fund` for details        
+remote:                
+remote:        found 0 vulnerabilities        
+remote:                
+remote: -----> Build succeeded!        
+remote: -----> Discovering process types        
+remote:        Procfile declares types     -> (none)        
+remote:        Default types for buildpack -> web        
+remote: 
+remote: -----> Compressing...        
+remote:        Done: 59.5M        
+remote: -----> Launching...        
+remote:        Released v39        
+remote:        https://adventurers-guild-d3fdb7602752.herokuapp.com/ deployed to Heroku        
+remote: 
+remote: Verifying deploy... done.        
+To https://git.heroku.com/adventurers-guild.git
+   a4faacc..83dcd7b  deploy-frontend -> main
