@@ -30,3 +30,22 @@ push-origin-tags.log
 heroku-frontend-push.log
 heroku-backend-push.log
 heroku-backend-push.log
+heroku-frontend-push.log.err
+heroku-frontend-push.log.split
+heroku-frontend-push.log.split.err
+heroku-backend-push.log.err
+heroku-backend-push.log.split
+heroku-backend-push.log.split.err
+
+# temporary ffmpeg artifacts and downloads
+tmp/
+*.zip
+
+# local snapshot files created during testing
+temp_*.html
+temp_index.html
+frontend_*.html
+
+# log files
+*.log
+*.err
