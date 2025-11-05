@@ -18,7 +18,16 @@
     video.muted = true; // muted to allow autoplay
     video.playsInline = true;
     video.controls = false;
+    video.loop = false; // play once like a gif
     video.setAttribute('preload','auto');
+
+    // when the video ends, auto-close the overlay (behave like a gif that finishes)
+    video.addEventListener('ended', ()=>{
+      if (overlay && overlay.parentNode) {
+        try { localStorage.setItem(STORAGE_KEY,'1'); } catch(e){}
+        overlay.parentNode.removeChild(overlay);
+      }
+    });
 
     // close button
     const close = document.createElement('button');
@@ -60,8 +69,11 @@
       });
     };
 
-    // small delay to let styles load
-    setTimeout(tryPlay, 250);
+  // small delay to let styles load
+  setTimeout(tryPlay, 250);
+
+  // ensure overlay variable is visible to the ended listener
+  // (we captured overlay in the returned object)
 
     // ensure background shows when closed — background is part of page styles
   }
