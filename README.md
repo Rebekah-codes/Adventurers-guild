@@ -37,3 +37,4 @@ Deployment notes (Heroku):
 - Use `heroku create --stack heroku-22` and set the buildpack to `heroku/python` (Heroku auto-detects normally).
 - Set `DJANGO_SECRET_KEY` and other env vars via `heroku config:set`.
 - Heroku will use `Procfile` to run gunicorn.
+\nDeployed-forced-build: 2025-11-05T13:33:28.0707144+00:00
