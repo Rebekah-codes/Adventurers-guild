@@ -8,8 +8,6 @@ Param(
 )
 
 Write-Output "Running backend deploy script (prefix=$Prefix, branch=$Branch, remote=$Remote, target=$Target)..."
-.
-\"$PSScriptRoot\scripts\deploy-backend.ps1\" | Out-Null 2>&1
 
 # Call the deploy script directly so Start-Process inside it handles output capture
 & "$PSScriptRoot\deploy-backend.ps1" -Prefix $Prefix -Branch $Branch -Remote $Remote -Target $Target -LogFile $LogFile
