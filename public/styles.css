@@ -128,6 +128,19 @@ body {
   .guild-footer { padding: 0.9rem 0.8rem; font-size:0.9rem }
 }
 
+/* Make footer sticky/fixed to bottom without covering content */
+.guild-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 60;
+}
+
+/* Ensure the main content doesn't sit behind the fixed footer */
+.guild-main { padding-bottom: 6.5rem; }
+
 /* Quest board styles */
 
 .quest-list { display:flex; flex-direction:column; gap:1.25rem; }
