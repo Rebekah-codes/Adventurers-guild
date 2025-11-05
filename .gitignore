@@ -17,3 +17,13 @@ env/
 
 # Heroku build artifacts
 /.cache/
+
+filter-branch.log
+
+heroku-backend-push.log
+
+push-origin-all.log
+
+push-origin-main.log
+
+push-origin-tags.log
