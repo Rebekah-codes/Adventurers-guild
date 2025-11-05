@@ -38,3 +38,4 @@ Deployment notes (Heroku):
 - Set `DJANGO_SECRET_KEY` and other env vars via `heroku config:set`.
 - Heroku will use `Procfile` to run gunicorn.
 \nDeployed-forced-build: 2025-11-05T13:33:28.0707144+00:00
+\nDeployed-forced-build: 2025-11-05T13:34:06.3791758+00:00
