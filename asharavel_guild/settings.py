@@ -124,3 +124,9 @@ ADMINS = []
 if os.environ.get('DJANGO_ADMIN_EMAILS'):
     ADMINS = [(a, a) for a in os.environ.get('DJANGO_ADMIN_EMAILS').split(',')]
 
+# Spam protection defaults (used by server-side persistent attempt tracking)
+SPAM_SHORT_WINDOW_HOURS = int(os.environ.get('SPAM_SHORT_WINDOW_HOURS', '1'))
+SPAM_SHORT_LIMIT = int(os.environ.get('SPAM_SHORT_LIMIT', '5'))
+SPAM_COOLDOWN_MINUTES = int(os.environ.get('SPAM_COOLDOWN_MINUTES', '30'))
+SPAM_PERMANENT_LIMIT = int(os.environ.get('SPAM_PERMANENT_LIMIT', '100'))
+
