@@ -27,3 +27,5 @@ push-origin-all.log
 push-origin-main.log
 
 push-origin-tags.log
+heroku-frontend-push.log
+heroku-backend-push.log
