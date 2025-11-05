@@ -8,14 +8,16 @@
 </head>
 <body>
   <main class="container">
-    <h1>Pending Applications <span id="new-badge" style="display:none">● New</span></h1>
+  <h1>Pending Applications <span id="new-badge" style="display:none">● New <span id="unread-count" style="font-weight:700;margin-left:6px;">0</span></span></h1>
     <p id="notice">Loading…</p>
     <div id="apps"></div>
   </main>
 
   <script>
-    let lastFirstId = null;
-    let pollInterval = 15000; // 15s
+  let lastFirstId = null;
+  let baselineFirstId = null; // first id at page open
+  let unreadCount = 0;
+  let pollInterval = 15000; // 15s
 
     async function init() {
       const token = localStorage.getItem('apiToken');
@@ -45,10 +47,29 @@
 
     function showNewBadge() {
       const b = document.getElementById('new-badge');
+      const c = document.getElementById('unread-count');
+      c.textContent = unreadCount;
       b.style.display = 'inline-block';
       b.classList.add('flash');
       setTimeout(() => b.classList.remove('flash'), 2000);
     }
+
+    function hideBadge() {
+      const b = document.getElementById('new-badge');
+      b.style.display = 'none';
+      const c = document.getElementById('unread-count');
+      c.textContent = '0';
+      unreadCount = 0;
+    }
+
+    // clicking the badge marks items as read (resets the baseline)
+    document.addEventListener('DOMContentLoaded', () => {
+      const b = document.getElementById('new-badge');
+      if (b) b.addEventListener('click', () => {
+        if (lastFirstId) baselineFirstId = lastFirstId;
+        hideBadge();
+      });
+    });
 
     async function loadApplications(token, opts = {}) {
       const { polling=false, initial=false } = opts;
@@ -65,13 +86,29 @@
       }
       // detect new applications (compare first id)
       const currentFirstId = data[0].id;
-      if (lastFirstId && currentFirstId !== lastFirstId) {
-        // there's a new submission at the top
-        showNewBadge();
-        // optional: play short beep
-        try { new Audio('/notify.wav').play().catch(()=>{}); } catch(e){}
+      if (initial) {
+        baselineFirstId = currentFirstId;
+        lastFirstId = currentFirstId;
+        unreadCount = 0;
+      } else {
+        if (lastFirstId && currentFirstId !== lastFirstId) {
+          // count how many new entries appeared before the last known baseline id
+          let newCount = 0;
+          for (const item of data) {
+            if (item.id === baselineFirstId) break;
+            newCount += 1;
+          }
+          // if baseline not found, treat returned items as new (fallback)
+          if (!baselineFirstId) newCount = data.length;
+          if (newCount > 0) {
+            unreadCount += newCount;
+            showNewBadge();
+            // optional: play short beep
+            try { new Audio('/notify.wav').play().catch(()=>{}); } catch(e){}
+          }
+        }
+        lastFirstId = currentFirstId;
       }
-      lastFirstId = currentFirstId;
       container.innerHTML = data.map(a => `
         <article class="application-item" id="app-${a.id}">
           <h3>${a.full_name || a.email} — <small>${a.status}</small></h3>
