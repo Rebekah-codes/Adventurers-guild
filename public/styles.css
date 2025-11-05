@@ -98,3 +98,8 @@ body {
   50% { transform: scale(1.15); opacity: 0.9 }
   100% { transform: scale(1); opacity: 1 }
 }
+
+/* Main navigation */
+.main-nav { margin-top: 0.6rem; display:flex; gap:0.6rem; justify-content:center; }
+.main-nav a { color: #f5e6c8; background: rgba(75,46,30,0.6); padding: 0.35rem 0.6rem; border-radius:6px; text-decoration:none; }
+.main-nav a.btn-apply { background: #ffd27a; color: #3b2412; font-weight:700; }

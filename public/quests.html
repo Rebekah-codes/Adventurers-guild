@@ -11,6 +11,10 @@
   <header class="guild-header">
     <h1>📜 Quest Board</h1>
     <p>Current missions for brave souls of the realm.</p>
+    <nav class="main-nav">
+      <a href="/">Guild Hall</a>
+      <a href="/application.html" class="btn-apply">Apply to join</a>
+    </nav>
   </header>
 
   <main class="guild-main">
@@ -22,23 +26,7 @@
     </section>
   </main>
 
-  <section class="application">
-    <h3>Apply to join the Guild</h3>
-    <form id="application-form">
-      <!-- Honeypot field to trap bots; hidden from users -->
-  <input type="text" name="hp_field" id="hp_field" style="display:none" tabindex="-1" autocomplete="off" />
-      <input name="email" type="email" placeholder="Email" required />
-      <input name="full_name" placeholder="Full name" />
-      <label>Skills (comma separated)</label>
-      <textarea name="skills" placeholder="List your skills"></textarea>
-      <label>Qualities / checklist</label>
-      <textarea name="qualities" placeholder="Your qualities, experience, availability"></textarea>
-      <label>Additional information</label>
-      <textarea name="additional_info" placeholder="Anything else to help your application"></textarea>
-      <button type="submit" id="application-submit-quests">Submit Application</button>
-    </form>
-    <p id="application-result"></p>
-  </section>
+  <!-- Application moved to dedicated page /application.html -->
 
   <footer class="guild-footer">
     <p>Return to <a href="/">Guild Hall</a></p>
@@ -148,78 +136,7 @@
         resEl.textContent = 'Error posting quest.';
       }
     });
-    // Application form handler with UI polish and client-side cooldown
-    (function(){
-      const form = document.getElementById('application-form');
-      const submitBtn = document.getElementById('application-submit-quests');
-      const resEl = document.getElementById('application-result');
-      let cooldown = false;
-
-      function showMessage(text, ok){
-        resEl.className = 'form-message ' + (ok ? 'success' : 'error');
-        resEl.textContent = text;
-      }
-
-      form.addEventListener('submit', async (ev) => {
-        ev.preventDefault();
-        if (cooldown) return showMessage('Please wait before submitting another application.', false);
-        const f = ev.target;
-        if (!f.email.value) return showMessage('Please enter an email.', false);
-        submitBtn.classList.add('btn-disabled');
-        submitBtn.disabled = true;
-        const body = {
-          email: f.email.value,
-          full_name: f.full_name.value,
-          hp_field: f.hp_field ? f.hp_field.value : document.getElementById('hp_field').value,
-          skills: f.skills.value,
-          qualities: f.qualities.value,
-          additional_info: f.additional_info.value,
-        };
-          try {
-            // reCAPTCHA token (if configured)
-            async function getRecaptchaToken(){
-              try{
-                if (!window.RECAPTCHA_SITE_KEY) return null;
-                if (!window.grecaptchaScriptInjected){
-                  const s = document.createElement('script');
-                  s.src = 'https://www.google.com/recaptcha/api.js?render=' + window.RECAPTCHA_SITE_KEY;
-                  document.head.appendChild(s);
-                  window.grecaptchaScriptInjected = true;
-                  await new Promise(r => s.onload = r);
-                }
-                if (window.grecaptcha){
-                  return await window.grecaptcha.execute(window.RECAPTCHA_SITE_KEY, {action: 'application'});
-                }
-              }catch(e){
-                return null;
-              }
-              return null;
-            }
-
-            const token = await getRecaptchaToken();
-            if (token) body.recaptcha_token = token;
-
-            const res = await fetch('/api/applications/', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(body)
-            });
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(text || res.statusText || 'Application submission failed');
-          }
-          showMessage('Application submitted. You will be notified after review.', true);
-          f.reset();
-          cooldown = true;
-          setTimeout(() => { cooldown = false; submitBtn.classList.remove('btn-disabled'); submitBtn.disabled = false; }, 30000);
-        } catch (err) {
-          console.error('Application error', err);
-          showMessage('Error submitting application. Try again later.', false);
-          submitBtn.classList.remove('btn-disabled');
-          submitBtn.disabled = false;
-        }
-      });
-    })();
+    // Application submission UI has moved to /application.html
 
     // Member check: show/hide member-only content
     async function checkMembership() {
