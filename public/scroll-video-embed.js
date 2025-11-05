@@ -17,7 +17,11 @@
     video.autoplay = true;
     video.muted = true; // muted to allow autoplay
     video.playsInline = true;
-    video.controls = false;
+  // explicitly ensure controls attribute is not present. Some browsers may
+  // show controls when autoplay is blocked — we'll strip them client-side
+  // and present our own play UI instead.
+  video.controls = false;
+  try { video.removeAttribute('controls'); } catch(e){}
     video.loop = false; // play once like a gif
     video.setAttribute('preload','auto');
 
@@ -48,8 +52,10 @@
     play.style.display = 'none'; // hidden by default; shown if autoplay blocked
     play.addEventListener('click', async ()=>{
       try {
+        // user gesture — try to play and hide native controls if any appear
         await video.play();
         play.style.display = 'none';
+        try { video.removeAttribute('controls'); video.controls = false; } catch(e){}
       } catch(e){
         // If still blocked, keep the play button visible — user must allow.
       }
@@ -88,6 +94,7 @@
         if (p && p.catch) await p;
         // if play succeeded, ensure the custom play UI is hidden
         if (playOverlay) playOverlay.style.display = 'none';
+        try { video.removeAttribute('controls'); video.controls = false; } catch(e){}
       } catch(err){
         if (playOverlay) playOverlay.style.display = 'flex';
       }
