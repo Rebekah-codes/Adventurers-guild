@@ -23,8 +23,13 @@
   pointer-events:none;
   overflow:hidden;
   z-index: -1;
-  background: radial-gradient(1200px 600px at 10% 20%, rgba(109,40,217,0.08), transparent 8%),
-              radial-gradient(800px 400px at 80% 80%, rgba(14,165,177,0.06), transparent 6%);
+  /* Background image (trees and people) with subtle overlay and the existing radial color washes on top */
+  background-image: linear-gradient(rgba(5,10,8,0.38), rgba(5,10,8,0.28)), url('/images/trees_and_people.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  /* color wash layers to keep the purple/cyan mood; these are lighter so the image remains visible */
+  box-shadow: inset 0 0 200px rgba(6,46,42,0.18);
 }
 
 .flicker-particle{
