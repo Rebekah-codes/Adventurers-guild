@@ -84,9 +84,12 @@ body {
   padding: 2rem 1rem;
   max-width: 980px;
   margin: 1.25rem auto;
-  background-color: var(--muted-bg);
+  /* Purple panel with 70% opacity so background image shows through */
+  background-color: rgba(109,40,217,0.70);
+  color: #f8fafc; /* ensure readable text on purple background */
   border-radius: var(--panel-radius);
-  box-shadow: 0 8px 24px rgba(6,46,42,0.06);
+  box-shadow: 0 8px 24px rgba(6,46,42,0.12);
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
 .guild-main h2 {
