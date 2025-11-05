@@ -7,6 +7,10 @@
     "start": "node src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Rebekah-codes/Adventurers-guild.git"
