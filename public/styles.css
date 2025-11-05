@@ -103,3 +103,19 @@ body {
 .main-nav { margin-top: 0.6rem; display:flex; gap:0.6rem; justify-content:center; }
 .main-nav a { color: #f5e6c8; background: rgba(75,46,30,0.6); padding: 0.35rem 0.6rem; border-radius:6px; text-decoration:none; }
 .main-nav a.btn-apply { background: #ffd27a; color: #3b2412; font-weight:700; }
+
+/* Floating CTA button */
+.floating-cta {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  background: linear-gradient(180deg,#ffd27a,#ffb84d);
+  color: #2b1a10;
+  padding: 0.8rem 1rem;
+  border-radius: 999px;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(43,26,16,0.25);
+  font-weight: 700;
+  z-index: 9999;
+}
+.floating-cta:focus { outline: 3px solid rgba(255,210,120,0.4); }
