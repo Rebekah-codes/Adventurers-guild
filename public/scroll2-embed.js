@@ -1,7 +1,10 @@
 // scroll2-embed.js — injects the scroll2 demo as a modal overlay on first visit and autoplays
 (function(){
   const STORAGE_KEY = 'asharavel_scroll_seen_v1';
-  if (localStorage.getItem(STORAGE_KEY)) return; // already seen
+  // Toggle for testing: when true, the overlay will show every page load.
+  // Set to false to respect the persisted localStorage flag.
+  const FORCE_ALWAYS_SHOW = true;
+  if (!FORCE_ALWAYS_SHOW && localStorage.getItem(STORAGE_KEY)) return; // already seen
 
   async function inject() {
     try {
