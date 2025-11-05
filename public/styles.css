@@ -119,3 +119,12 @@ body {
   z-index: 9999;
 }
 .floating-cta:focus { outline: 3px solid rgba(255,210,120,0.4); }
+
+/* CTA container with dismiss and tooltip */
+.cta-container { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; }
+.cta-dismiss { background: transparent; border: none; color: #3b2412; font-size: 18px; line-height:1; padding: 0 6px; cursor: pointer; }
+.cta-dismiss:focus { outline: 2px solid rgba(0,0,0,0.15); }
+.cta-tooltip { position: absolute; right: 100px; bottom: 28px; background: rgba(43,26,16,0.9); color: #ffd; padding: 8px 10px; border-radius: 6px; font-size: 0.9rem; display: none; transform-origin: right bottom; }
+.cta-tooltip.show { display: block; animation: tooltip-pop 0.45s ease-out; }
+
+@keyframes tooltip-pop { from { transform: scale(0.9) translateY(4px); opacity: 0 } to { transform: scale(1) translateY(0); opacity: 1 } }
