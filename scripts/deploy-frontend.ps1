@@ -1,19 +1,22 @@
 Param(
-  [string]$Prefix = 'backend',
-  [string]$Branch = 'deploy-backend',
-  [string]$Remote = 'heroku-backend',
+  [string]$Prefix = 'public',
+  [string]$Branch = 'deploy-frontend',
+  [string]$Remote = 'heroku',
   [string]$Target = 'main',
-  [string]$LogFile = 'heroku-backend-push.log'
+  [string]$LogFile = 'heroku-frontend-push.log'
 )
 
 Write-Output "Creating subtree split for prefix '$Prefix' into branch '$Branch'..."
-& git subtree split --prefix $Prefix -b $Branch
+$splitCmd = "git subtree split --prefix $Prefix -b $Branch"
+Write-Output $splitCmd
+$splitResult = & git subtree split --prefix $Prefix -b $Branch
 if ($LASTEXITCODE -ne 0) {
   Write-Error "subtree split failed (exit code $LASTEXITCODE). Aborting."
   exit $LASTEXITCODE
 }
 
 Write-Output "Pushing branch '$Branch' to $Remote:$Target (force). Logging to $LogFile"
+# Use PowerShell redirection that captures all streams
 $ref = $Branch + ':' + $Target
 & git push $Remote $ref --force *> $LogFile
 if ($LASTEXITCODE -ne 0) {
