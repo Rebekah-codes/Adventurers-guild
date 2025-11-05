@@ -13,7 +13,8 @@ if ($LASTEXITCODE -ne 0) {
   exit $LASTEXITCODE
 }
 
-Write-Output "Pushing branch '$Branch' to $Remote:$Target (force). Logging to $LogFile"
+$msg = "Pushing branch '$Branch' to $($Remote):$($Target) (force). Logging to $LogFile"
+Write-Output $msg
 $ref = $Branch + ':' + $Target
 & git push $Remote $ref --force *> $LogFile
 if ($LASTEXITCODE -ne 0) {

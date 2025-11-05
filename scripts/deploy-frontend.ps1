@@ -15,7 +15,7 @@ if ($LASTEXITCODE -ne 0) {
   exit $LASTEXITCODE
 }
 
-Write-Output "Pushing branch '$Branch' to $Remote:$Target (force). Logging to $LogFile"
+Write-Output ("Pushing branch '{0}' to {1}:{2} (force). Logging to {3}" -f $Branch,$Remote,$Target,$LogFile)
 # Use PowerShell redirection that captures all streams
 $ref = $Branch + ':' + $Target
 & git push $Remote $ref --force *> $LogFile
