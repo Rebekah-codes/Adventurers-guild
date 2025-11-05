@@ -66,12 +66,32 @@
       overlay.appendChild(closeBtn);
       document.body.appendChild(overlay);
 
+      // Ensure the demo script is executed in this page context so handlers attach.
+      // If it's already present, reuse it; otherwise load it and wait for it to run.
+      function ensureDemoScript() {
+        return new Promise((resolve)=>{
+          const existing = document.querySelector('script[src="/scroll2.js"]');
+          if (existing) {
+            // already loaded — resolve on next tick
+            return resolve();
+          }
+          const s = document.createElement('script');
+          s.src = '/scroll2.js';
+          s.defer = false;
+          s.onload = ()=>{ resolve(); };
+          s.onerror = ()=>{ console.warn('Could not load /scroll2.js'); resolve(); };
+          document.body.appendChild(s);
+        });
+      }
+
+      await ensureDemoScript();
+
       // trigger the unfurl: find the play button inside the injected container
       const play = container.querySelector('#playScroll');
       if (play) {
-        // small delay for CSS to load/paint
+        // small delay for CSS to load/paint and for scroll2.js to attach handlers
         setTimeout(()=>{
-          play.click();
+          try { play.focus(); play.click(); } catch(e){ /* ignore */ }
         }, 350);
       }
 
