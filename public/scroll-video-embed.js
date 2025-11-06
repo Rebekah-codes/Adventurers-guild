@@ -96,45 +96,40 @@
       // keep overlay visible until user presses Close
     });
 
-    // Build the per-word typewriter effect for the end-of-video text
+    // Build the per-character typewriter effect for the end-of-video text
     function startScrollVideoTypewriter(){
       const textSpan = document.getElementById('scroll-video-text');
       if (!textSpan) return;
-      // get raw text and split into tokens (keep whitespace so wrapping is preserved)
       const raw = textSpan.textContent || '';
-      const tokens = raw.split(/(\s+)/);
-      const wordsOnly = tokens.filter(t => !/\s+/.test(t));
-      // compute duration similar to previous logic, but slower (half speed -> multiply)
-      const baseDuration = Math.max(3500, raw.length * 40);
-      const perWordDelay = Math.max(80, (baseDuration / Math.max(1, wordsOnly.length)) * 2);
+      // compute per-character delay: slightly faster overall (approx ~25ms per char)
+      const perCharDelay = 25; // ms per character
 
-      // build fragment of spans and whitespace text nodes
+      // Build fragment: for whitespace characters, keep as text nodes; for visible characters wrap in span.char
       const frag = document.createDocumentFragment();
-      let wordIndex = 0;
-      tokens.forEach(token => {
-        if (/\s+/.test(token)) {
-          frag.appendChild(document.createTextNode(token));
+      let charIndex = 0;
+      for (let i = 0; i < raw.length; i++) {
+        const ch = raw[i];
+        if (/\s/.test(ch)) {
+          // preserve whitespace as text node
+          frag.appendChild(document.createTextNode(ch));
         } else {
           const span = document.createElement('span');
-          span.className = 'word';
-          span.textContent = token;
-          // set an inline transition-delay so CSS transition is staggered
-          span.style.transitionDelay = `${wordIndex * perWordDelay}ms`;
+          span.className = 'char';
+          span.textContent = ch;
+          span.style.transitionDelay = `${charIndex * perCharDelay}ms`;
           frag.appendChild(span);
-          wordIndex += 1;
+          charIndex += 1;
         }
-      });
+      }
 
-      // replace contents and trigger animation
       textSpan.innerHTML = '';
       textSpan.appendChild(frag);
 
-      // Allow a small tick then add the visible class to each word in sequence using the transition-delay
-      // We still toggle via class so the transition-delay applies.
+      // trigger reveal: after a small tick add 'visible' to all .char elements
       setTimeout(() => {
-        const spans = textSpan.querySelectorAll('.word');
-        spans.forEach(s => s.classList.add('visible'));
-      }, 50);
+        const chars = textSpan.querySelectorAll('.char');
+        chars.forEach(c => c.classList.add('visible'));
+      }, 30);
     }
 
     // (no backdrop click handler — overlay only closes via the Close button)

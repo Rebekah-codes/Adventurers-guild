@@ -63,28 +63,25 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 .scroll-typewriter{
   display:block;
   /* make the text area wider so it can stretch further left/right */
-  width: min(92vw, 1100px);
+  width: min(94vw, 1200px);
   max-width: 100%;
   font-family:'Great Vibes','Uncial Antiqua',serif,cursive;
-  font-size:1.25rem; /* larger */
-  font-weight:700; /* bolder for readability */
+  font-size:1.4rem; /* increased for readability */
+  font-weight:800; /* bolder for readability */
   color:#000;
   white-space:pre-wrap;
   overflow:hidden;
-  --characters:60;
-  --duration:3500ms;
 }
 
-/* per-word reveal */
+/* per-character reveal */
 .scroll-typewriter .text{display:inline}
-.scroll-typewriter .word{
+.scroll-typewriter .char{
   display:inline-block;
   opacity:0;
-  transform:translate(-12px,-10px);
-  margin-right:.35ch;
-  transition:transform 260ms cubic-bezier(.2,.9,.2,1), opacity 260ms ease;
+  transform:translate(-8px,-6px); /* come from top-left */
+  transition:transform 120ms cubic-bezier(.2,.9,.2,1), opacity 120ms ease;
 }
-.scroll-typewriter .word.visible{opacity:1;transform:none}
+.scroll-typewriter .char.visible{opacity:1;transform:none}
 .scroll-typewriter .caret{display:inline-block;margin-left:.25rem;animation:blink 1s steps(1) infinite}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 
