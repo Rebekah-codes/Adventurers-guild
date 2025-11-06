@@ -158,41 +158,38 @@
       chars.forEach((chEl, idx) => {
         setTimeout(() => {
           try {
+            // reveal character
             chEl.classList.add('visible');
-            // position pen absolutely over/after this character so it does not reflow text
+            // position the pen on the next render frame so layout is stable
             if (penEl) {
-              try {
-                const chRect = chEl.getBoundingClientRect();
-                const containerRect = container.getBoundingClientRect();
-                const penRect = penEl.getBoundingClientRect();
-                // try to find the nib element inside the SVG and measure it
-                const nibEl = penEl.querySelector('.nib');
-                if (nibEl) {
-                  const nibRect = nibEl.getBoundingClientRect();
-                  // how far is the nib's left from the pen's left
-                  const nibOffsetFromPenLeft = nibRect.left - penRect.left;
-                  // desired x (relative to container) is character's right edge
-                  const desiredNibX = chRect.right - containerRect.left;
-                  const desiredPenLeft = desiredNibX - nibOffsetFromPenLeft;
-                  // vertical: align nib center y with baseline-ish target
-                  const nibCenterY = (nibRect.top + nibRect.bottom) / 2 - containerRect.top;
-                  const desiredNibY = chRect.top - containerRect.top + (chRect.height * 0.62);
-                  const desiredPenTop = penRect.top - containerRect.top + (desiredNibY - nibCenterY);
-                  penEl.style.left = desiredPenLeft + 'px';
-                  penEl.style.top = desiredPenTop + 'px';
-                } else {
-                  // fallback: simple placement near char edge
-                  const left = (chRect.right - containerRect.left) + 2;
-                  const top = chRect.top - containerRect.top + (chRect.height * 0.62);
-                  penEl.style.left = left + 'px';
-                  penEl.style.top = top + 'px';
-                }
-                // small tilt for variation; because we'll flip horizontally, use a positive base rotation
-                const tilt = (idx % 3) - 1; // -1,0,1
-                const baseRot = 18;
-                const rotation = baseRot - (tilt * 6);
-                penEl.style.transform = 'translate(-50%,-50%) scaleX(-1) rotate(' + rotation + 'deg)';
-              } catch (e) { /* ignore positioning errors on old browsers */ }
+              requestAnimationFrame(() => {
+                try {
+                  const chRect = chEl.getBoundingClientRect();
+                  const containerRect = container.getBoundingClientRect();
+                  const penRect = penEl.getBoundingClientRect();
+                  const nibEl = penEl.querySelector('.nib');
+                  if (nibEl) {
+                    const nibRect = nibEl.getBoundingClientRect();
+                    const nibOffsetFromPenLeft = nibRect.left - penRect.left;
+                    const desiredNibX = chRect.right - containerRect.left;
+                    const desiredPenLeft = desiredNibX - nibOffsetFromPenLeft;
+                    const nibCenterY = (nibRect.top + nibRect.bottom) / 2 - containerRect.top;
+                    const desiredNibY = chRect.top - containerRect.top + (chRect.height * 0.62);
+                    const desiredPenTop = penRect.top - containerRect.top + (desiredNibY - nibCenterY);
+                    penEl.style.left = desiredPenLeft + 'px';
+                    penEl.style.top = desiredPenTop + 'px';
+                  } else {
+                    const left = (chRect.right - containerRect.left) + 2;
+                    const top = chRect.top - containerRect.top + (chRect.height * 0.62);
+                    penEl.style.left = left + 'px';
+                    penEl.style.top = top + 'px';
+                  }
+                  const tilt = (idx % 3) - 1; // -1,0,1
+                  const baseRot = 18;
+                  const rotation = baseRot - (tilt * 6);
+                  penEl.style.transform = 'translate(-50%,-50%) scaleX(-1) rotate(' + rotation + 'deg)';
+                } catch (e) { /* ignore measurement errors */ }
+              });
             }
           } catch(e){}
         }, idx * perCharDelay);

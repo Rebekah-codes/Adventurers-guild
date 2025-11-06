@@ -90,6 +90,9 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 .scroll-typewriter .pen svg{width:64px;height:auto;display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,0.18));}
 .scroll-typewriter.typing .pen{display:block}
 
+/* Ensure pen sits above text and animates smoothly */
+.scroll-typewriter .pen{z-index:9999; will-change:left,top,transform;}
+
 /* Ensure no stray/global caret appears inside the scroll video overlay.
   Hide any .caret elements that are children of the overlay except the
   one inside our .scroll-typewriter when it is actively typing. */
