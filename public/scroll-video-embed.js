@@ -90,9 +90,52 @@
       // show end text (if present)
       try {
         if (endText) { endText.style.display = 'flex'; endText.classList.add('visible'); }
+        // Initialize and run the per-word typewriter animation for the end text
+        try { startScrollVideoTypewriter(); } catch(e) { /* ignore errors */ }
       } catch(e){}
       // keep overlay visible until user presses Close
     });
+
+    // Build the per-word typewriter effect for the end-of-video text
+    function startScrollVideoTypewriter(){
+      const textSpan = document.getElementById('scroll-video-text');
+      if (!textSpan) return;
+      // get raw text and split into tokens (keep whitespace so wrapping is preserved)
+      const raw = textSpan.textContent || '';
+      const tokens = raw.split(/(\s+)/);
+      const wordsOnly = tokens.filter(t => !/\s+/.test(t));
+      // compute duration similar to previous logic, but slower (half speed -> multiply)
+      const baseDuration = Math.max(3500, raw.length * 40);
+      const perWordDelay = Math.max(80, (baseDuration / Math.max(1, wordsOnly.length)) * 2);
+
+      // build fragment of spans and whitespace text nodes
+      const frag = document.createDocumentFragment();
+      let wordIndex = 0;
+      tokens.forEach(token => {
+        if (/\s+/.test(token)) {
+          frag.appendChild(document.createTextNode(token));
+        } else {
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.textContent = token;
+          // set an inline transition-delay so CSS transition is staggered
+          span.style.transitionDelay = `${wordIndex * perWordDelay}ms`;
+          frag.appendChild(span);
+          wordIndex += 1;
+        }
+      });
+
+      // replace contents and trigger animation
+      textSpan.innerHTML = '';
+      textSpan.appendChild(frag);
+
+      // Allow a small tick then add the visible class to each word in sequence using the transition-delay
+      // We still toggle via class so the transition-delay applies.
+      setTimeout(() => {
+        const spans = textSpan.querySelectorAll('.word');
+        spans.forEach(s => s.classList.add('visible'));
+      }, 50);
+    }
 
     // (no backdrop click handler — overlay only closes via the Close button)
 

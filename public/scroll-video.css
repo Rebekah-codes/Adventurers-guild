@@ -62,22 +62,30 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 /* Typewriter styles for the end-of-video text */
 .scroll-typewriter{
   display:block;
-  max-width:86ch;
+  /* make the text area wider so it can stretch further left/right */
+  width: min(92vw, 1100px);
+  max-width: 100%;
   font-family:'Great Vibes','Uncial Antiqua',serif,cursive;
-  font-size:1.05rem;
+  font-size:1.25rem; /* larger */
+  font-weight:700; /* bolder for readability */
   color:#000;
   white-space:pre-wrap;
   overflow:hidden;
   --characters:60;
   --duration:3500ms;
 }
-.scroll-typewriter .text{
+
+/* per-word reveal */
+.scroll-typewriter .text{display:inline}
+.scroll-typewriter .word{
   display:inline-block;
-  max-width:0;
-  animation:typing var(--duration) steps(var(--characters)) forwards;
+  opacity:0;
+  transform:translate(-12px,-10px);
+  margin-right:.35ch;
+  transition:transform 260ms cubic-bezier(.2,.9,.2,1), opacity 260ms ease;
 }
+.scroll-typewriter .word.visible{opacity:1;transform:none}
 .scroll-typewriter .caret{display:inline-block;margin-left:.25rem;animation:blink 1s steps(1) infinite}
-@keyframes typing{to{max-width:calc(var(--characters) * 1ch)}}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 
 /* Make sure underlying page background remains visible when overlay removed */
