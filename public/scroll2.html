@@ -5,6 +5,48 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Animated Scroll — Adventurers Guild</title>
   <link rel="stylesheet" href="/scroll2.css" />
+  <style>
+    /* Overrides to ensure the paper text shows as plain black text with no grey boxes */
+    .overlay .paper-text,
+    .overlay .paper-text * {
+      background: transparent !important;
+      box-shadow: none !important;
+      border: none !important;
+      color: #000 !important;
+    }
+
+    /* Typewriter styles */
+    .scroll-typewriter {
+      display: inline-block;
+      font-family: Uncial Antiqua, serif, monospace;
+      font-size: 1rem;
+      white-space: pre-wrap; /* allow line breaks to wrap */
+      overflow: hidden;
+      --characters: 60;
+      --duration: 3500ms;
+      color: #000;
+      background: transparent;
+      padding: 0;
+      margin: 0;
+    }
+
+    .scroll-typewriter .text {
+      display: inline-block;
+      max-width: 0;
+      vertical-align: top;
+      animation: typing var(--duration) steps(var(--characters)) forwards;
+      white-space: pre-wrap;
+    }
+
+    .scroll-typewriter .caret {
+      display: inline-block;
+      margin-left: .25rem;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes typing { to { max-width: calc(var(--characters) * 1ch); } }
+    @keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+  </style>
 </head>
 <body>
   <main class="wrap">
@@ -54,7 +96,20 @@
 
         <div class="paper-text">
           <h2>Welcome, traveler</h2>
-          <p>By decree of the Adventurers Guild of Asharavel — you are hereby granted passage and commendation.</p>
+          <div class="scroll-typewriter" id="scroll2-typewriter">
+            <span class="text" id="scroll2-text">To the brave soul whose name now graces our ledger,
+
+By decree of the Guildmaster and the Circle of Blades, you are hereby welcomed into the Adventurers Guild of Asharavel. From the moss-laced ruins of Eldenmere to the frostbitten peaks of Tharundel, our banners fly where corruption festers and now, yours shall fly among them.
+
+You are no longer wanderer, nor mercenary, nor lone blade in the dark. You are kin to elves, dwarves, humans, and all who stand against the shadow. Your oath binds you to the defense of the realm, the pursuit of honor, and the cleansing of evil in all its forms, be it goblin horde, spider brood, or troll siege.
+
+Within these halls you shall find comrades, quests, and chronicles. Your deeds will be etched into the Guild’s log, your victories sung in the taverns of Silverfen, and your failures, should they come, be met with steel and solidarity.
+
+Take up your sigil. Ready your blade. The world awaits.
+
+Signed in ink and flame,
+Guildmaster of Asharavel</span><span class="caret">|</span>
+          </div>
         </div>
       </div>
 
@@ -64,5 +119,25 @@
     </section>
   </main>
   <script src="/scroll2.js"></script>
+  <script>
+    (function() {
+      const el = document.getElementById('scroll2-text');
+      const container = document.getElementById('scroll2-typewriter');
+      if (!el || !container) return;
+      const text = (el.textContent || '').trim();
+      // pick duration proportional to length, but at least 3.5s
+      const durationMs = Math.max(3500, text.length * 40);
+      container.style.setProperty('--characters', String(text.length));
+      container.style.setProperty('--duration', `${durationMs}ms`);
+
+      // Loop: restart animation after it finishes (with small pause)
+      const pause = 800;
+      setInterval(() => {
+        el.style.animation = 'none';
+        void el.offsetWidth; // reflow
+        el.style.animation = `typing ${container.style.getPropertyValue('--duration') || durationMs + 'ms'} steps(${text.length}) forwards`;
+      }, durationMs + pause);
+    })();
+  </script>
 </body>
 </html>

@@ -3,6 +3,40 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* Typewriter CSS - lightweight, no JS frameworks required */
+    .scroll-typewriter {
+      display: inline-block;
+      font-family: Uncial Antiqua, monospace, serif;
+      font-size: 1.05rem;
+      white-space: nowrap;
+      overflow: hidden;
+      --characters: 30;
+      --duration: 3500ms;
+      color: #f5e6c8;
+    }
+
+    .scroll-typewriter .text {
+      display: inline-block;
+      max-width: 0;
+      animation: typing var(--duration) steps(var(--characters)) forwards;
+    }
+
+    .scroll-typewriter .caret {
+      display: inline-block;
+      margin-left: .25rem;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes typing {
+      to { max-width: calc(var(--characters) * 1ch); }
+    }
+
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
 </head>
 <body>
   <main class="demo-wrap">
@@ -23,7 +57,10 @@
 
         <div class="scroll-text">
           <h2>By Decree of the Adventurers Guild</h2>
-          <p>Let it be known that those who bring light to Asharavel are granted safe passage and formal commendation.</p>
+          <div class="scroll-typewriter" id="scroll-typewriter">
+            <span class="text" id="scroll-text">Let it be known that those who bring light to Asharavel are granted safe passage and formal commendation.</span>
+            <span class="caret">|</span>
+          </div>
         </div>
 
         <button id="playBtn" class="play-btn">Play</button>
@@ -31,5 +68,28 @@
     </div>
   </main>
 
-<!-- scroll.html removed: replaced by scroll-video overlay. -->
-<!doctype html><html><head><meta charset="utf-8"><title>deprecated</title></head><body>Removed.</body></html>
+  <script>
+    (function() {
+      const el = document.getElementById('scroll-text');
+      const container = document.getElementById('scroll-typewriter');
+      if (!el || !container) return;
+      const text = (el.textContent || '').trim();
+      // set length and optional duration
+      container.style.setProperty('--characters', String(text.length));
+      // duration already set in CSS -- override here if you want different speed
+      container.style.setProperty('--duration', '3500ms');
+
+      // loop the animation: reset and reapply every cycle
+      const durationMs = 3500;
+      const extra = 700; // pause after typing
+      setInterval(() => {
+        el.style.animation = 'none';
+        // force reflow
+        void el.offsetWidth;
+        el.style.animation = `typing ${container.style.getPropertyValue('--duration') || '3500ms'} steps(${text.length}) forwards`;
+      }, durationMs + extra);
+    })();
+  </script>
+
+  <!-- scroll.html removed: replaced by scroll-video overlay. -->
+  <!doctype html><html><head><meta charset="utf-8"><title>deprecated</title></head><body>Removed.</body></html>
