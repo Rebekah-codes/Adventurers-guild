@@ -116,7 +116,7 @@
           const span = document.createElement('span');
           span.className = 'char';
           span.textContent = ch;
-          span.style.transitionDelay = `${charIndex * perCharDelay}ms`;
+          // do not set transitionDelay here; we'll reveal each char sequentially in JS
           frag.appendChild(span);
           charIndex += 1;
         }
@@ -126,27 +126,37 @@
       textSpan.appendChild(frag);
 
       // trigger reveal: after a small tick add 'visible' to all .char elements
-      setTimeout(() => {
-        const chars = textSpan.querySelectorAll('.char');
-        // enable caret visually and with animation by adding container class
-        const container = document.getElementById('scroll-video-typewriter');
-        if (container) container.classList.add('typing');
-        const caretEl = document.querySelector('#scroll-video-typewriter .caret');
+      // sequentially reveal characters so we can move the caret along with typing
+      const chars = Array.from(textSpan.querySelectorAll('.char'));
+      const container = document.getElementById('scroll-video-typewriter');
+      const caretEl = document.querySelector('#scroll-video-typewriter .caret');
+      if (container) container.classList.add('typing');
+      if (caretEl) { caretEl.style.display = 'inline-block'; caretEl.style.opacity = '1'; }
+
+      chars.forEach((chEl, idx) => {
+        setTimeout(() => {
+          try {
+            chEl.classList.add('visible');
+            // move caret to immediately after this character
+            if (caretEl && chEl.parentNode) {
+              // insert caret after the character node
+              const parent = chEl.parentNode;
+              if (chEl.nextSibling) parent.insertBefore(caretEl, chEl.nextSibling);
+              else parent.appendChild(caretEl);
+            }
+          } catch(e){}
+        }, idx * perCharDelay);
+      });
+
+      // hide caret after last char + small buffer
+      try {
+        const totalMs = (chars.length * perCharDelay) + 250;
         if (caretEl) {
-          caretEl.style.display = 'inline-block';
-          caretEl.style.opacity = '1';
+          setTimeout(() => {
+            try { if (container) container.classList.remove('typing'); caretEl.style.display = 'none'; } catch(e){}
+          }, totalMs);
         }
-        chars.forEach(c => c.classList.add('visible'));
-        // hide the blinking caret after the last character finishes animating
-        try {
-          const totalMs = (charIndex * perCharDelay) + 200; // small buffer after last char
-          if (caretEl) {
-            setTimeout(() => {
-              try { if (container) container.classList.remove('typing'); caretEl.style.display = 'none'; } catch(e){}
-            }, totalMs);
-          }
-        } catch(e){}
-      }, 30);
+      } catch(e){}
     }
 
     // (no backdrop click handler — overlay only closes via the Close button)
