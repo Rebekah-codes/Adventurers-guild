@@ -88,7 +88,7 @@
               <!-- ferrule (metal band) -->
               <rect x="88" y="6" width="8" height="12" rx="2" ry="2" fill="#2b1a11" />
               <!-- nib -->
-              <path d="M104 4 L120 12 L104 20 L96 14 L104 4 Z" fill="#2b1a11" />
+              <path class="nib" d="M104 4 L120 12 L104 20 L96 14 L104 4 Z" fill="#2b1a11" />
               <!-- nib slit / detail -->
               <rect x="108" y="11" width="2" height="2" rx="1" fill="#d6a873" />
             </svg>
@@ -164,20 +164,29 @@
               try {
                 const chRect = chEl.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
-                // compute pen rendered size and map nib position from viewBox to pixels
                 const penRect = penEl.getBoundingClientRect();
-                const renderedWidth = penRect.width || 64; // fallback if not yet measured
-                const vbWidth = 120; // viewBox width used in SVG
-                const nibVBx = 112; // approx x coordinate of nib tip inside viewBox
-                const scale = renderedWidth / vbWidth;
-                const nibX = nibVBx * scale;
-                const centerX = renderedWidth / 2;
-                // center left such that nib tip sits on the character's right edge (so after flip nib faces left)
-                const left = (chRect.right - containerRect.left) - (nibX - centerX) + 0;
-                // vertical: align nib slightly below character midline so it 'touches' the baseline
-                const top = chRect.top - containerRect.top + (chRect.height * 0.62);
-                penEl.style.left = left + 'px';
-                penEl.style.top = top + 'px';
+                // try to find the nib element inside the SVG and measure it
+                const nibEl = penEl.querySelector('.nib');
+                if (nibEl) {
+                  const nibRect = nibEl.getBoundingClientRect();
+                  // how far is the nib's left from the pen's left
+                  const nibOffsetFromPenLeft = nibRect.left - penRect.left;
+                  // desired x (relative to container) is character's right edge
+                  const desiredNibX = chRect.right - containerRect.left;
+                  const desiredPenLeft = desiredNibX - nibOffsetFromPenLeft;
+                  // vertical: align nib center y with baseline-ish target
+                  const nibCenterY = (nibRect.top + nibRect.bottom) / 2 - containerRect.top;
+                  const desiredNibY = chRect.top - containerRect.top + (chRect.height * 0.62);
+                  const desiredPenTop = penRect.top - containerRect.top + (desiredNibY - nibCenterY);
+                  penEl.style.left = desiredPenLeft + 'px';
+                  penEl.style.top = desiredPenTop + 'px';
+                } else {
+                  // fallback: simple placement near char edge
+                  const left = (chRect.right - containerRect.left) + 2;
+                  const top = chRect.top - containerRect.top + (chRect.height * 0.62);
+                  penEl.style.left = left + 'px';
+                  penEl.style.top = top + 'px';
+                }
                 // small tilt for variation; because we'll flip horizontally, use a positive base rotation
                 const tilt = (idx % 3) - 1; // -1,0,1
                 const baseRot = 18;
