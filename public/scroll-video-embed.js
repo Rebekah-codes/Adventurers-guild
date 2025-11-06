@@ -72,14 +72,14 @@
     const endText = document.createElement('div');
     endText.className = 'scroll-video-endtext';
     endText.style.display = 'none';
+    // Replace static paragraphs with a single typewriter container so the text
+    // appears with a typing animation after the video ends.
     endText.innerHTML = `
       <div class="end-content">
-        <p class="body">To the brave soul whose name now graces our ledger,</p>
-        <p class="body">By decree of the Guildmaster and the Circle of Blades, you are hereby welcomed into the Adventurers Guild of Asharavel. From the moss-laced ruins of Eldenmere to the frostbitten peaks of Tharundel, our banners fly where corruption festers and now, yours shall fly among them.</p>
-        <p class="body">You are no longer wanderer, nor mercenary, nor lone blade in the dark. You are kin to elves, dwarves, humans, and all who stand against the shadow. Your oath binds you to the defense of the realm, the pursuit of honor, and the cleansing of evil in all its forms, be it goblin horde, spider brood, or troll siege.</p>
-        <p class="body">Within these halls you shall find comrades, quests, and chronicles. Your deeds will be etched into the Guild’s log, your victories sung in the taverns of Silverfen, and your failures, should they come, be met with steel and solidarity.</p>
-        <p class="body">Take up your sigil. Ready your blade. The world awaits.</p>
-        <p class="signature">Signed in ink and flame,<br>Guildmaster of Asharavel</p>
+        <div class="scroll-typewriter" id="scroll-video-typewriter">
+          <span class="text" id="scroll-video-text">To the brave soul whose name now graces our ledger.\n\nBy decree of the Guildmaster and the Circle of Blades, you are hereby welcomed into the Adventurers Guild of Asharavel. From the moss-laced ruins of Eldenmere to the frostbitten peaks of Tharundel, our banners fly where corruption festers and now, yours shall fly among them.\n\nYou are no longer wanderer, nor mercenary, nor lone blade in the dark. You are kin to elves, dwarves, humans, and all who stand against the shadow. Your oath binds you to the defense of the realm, the pursuit of honor, and the cleansing of evil in all its forms, be it goblin horde, spider brood, or troll siege.\n\nWithin these halls you shall find comrades, quests, and chronicles. Your deeds will be etched into the Guild’s log, your victories sung in the taverns of Silverfen, and your failures, should they come, be met with steel and solidarity.\n\nTake up your sigil. Ready your blade. The world awaits.\n\nSigned in ink and flame,\nGuildmaster of Asharavel</span>
+          <span class="caret">|</span>
+        </div>
       </div>`;
 
     // ensure the video does not restart if the browser or other code tries

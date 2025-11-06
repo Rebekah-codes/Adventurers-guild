@@ -54,10 +54,31 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 /* End-of-video centered text */
 .scroll-video-endtext{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:4;pointer-events:none;opacity:0;transition:opacity 260ms ease}
 .scroll-video-endtext.visible{opacity:1}
-.scroll-video-endtext p{pointer-events:auto;margin:0;padding:14px 20px;border-radius:10px;background:rgba(2,6,8,0.6);color:#e6f9fb;font-weight:600;font-size:1.1rem}
+.scroll-video-endtext p{pointer-events:auto;margin:0;padding:0;border-radius:0;background:transparent;color:#000;font-weight:600;font-size:1.05rem}
 .scroll-video-endtext .end-content{max-width:86ch;text-align:left;line-height:1.48;padding:18px}
-.scroll-video-endtext .end-content .body{font-family:'Great Vibes','Uncial Antiqua',serif,cursive;font-size:1.15rem;margin-bottom:0.8rem;white-space:pre-wrap}
+.scroll-video-endtext .end-content .body{font-family:'Great Vibes','Uncial Antiqua',serif,cursive;font-size:1.05rem;margin-bottom:0.8rem;white-space:pre-wrap}
 .scroll-video-endtext .end-content .signature{font-family:'Uncial Antiqua',serif,cursive;font-weight:700;margin-top:0.8rem;text-align:right}
+
+/* Typewriter styles for the end-of-video text */
+.scroll-typewriter{
+  display:block;
+  max-width:86ch;
+  font-family:'Great Vibes','Uncial Antiqua',serif,cursive;
+  font-size:1.05rem;
+  color:#000;
+  white-space:pre-wrap;
+  overflow:hidden;
+  --characters:60;
+  --duration:3500ms;
+}
+.scroll-typewriter .text{
+  display:inline-block;
+  max-width:0;
+  animation:typing var(--duration) steps(var(--characters)) forwards;
+}
+.scroll-typewriter .caret{display:inline-block;margin-left:.25rem;animation:blink 1s steps(1) infinite}
+@keyframes typing{to{max-width:calc(var(--characters) * 1ch)}}
+@keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 
 /* Make sure underlying page background remains visible when overlay removed */
 .background-container{z-index:-1}
