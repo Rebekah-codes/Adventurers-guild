@@ -82,7 +82,9 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   transition:transform 120ms cubic-bezier(.2,.9,.2,1), opacity 120ms ease;
 }
 .scroll-typewriter .char.visible{opacity:1;transform:none}
-.scroll-typewriter .caret{display:inline-block;margin-left:.25rem;animation:blink 1s steps(1) infinite}
+/* caret is hidden by default; JS will enable it only while typing */
+.scroll-typewriter .caret{display:none;margin-left:.25rem}
+.scroll-typewriter.typing .caret{display:inline-block;animation:blink 1s steps(1) infinite}
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 
 /* Make sure underlying page background remains visible when overlay removed */

@@ -78,7 +78,7 @@
       <div class="end-content">
         <div class="scroll-typewriter" id="scroll-video-typewriter">
           <span class="text" id="scroll-video-text">To the brave soul whose name now graces our ledger.\n\nBy decree of the Guildmaster and the Circle of Blades, you are hereby welcomed into the Adventurers Guild of Asharavel. From the moss-laced ruins of Eldenmere to the frostbitten peaks of Tharundel, our banners fly where corruption festers and now, yours shall fly among them.\n\nYou are no longer wanderer, nor mercenary, nor lone blade in the dark. You are kin to elves, dwarves, humans, and all who stand against the shadow. Your oath binds you to the defense of the realm, the pursuit of honor, and the cleansing of evil in all its forms, be it goblin horde, spider brood, or troll siege.\n\nWithin these halls you shall find comrades, quests, and chronicles. Your deeds will be etched into the Guild’s log, your victories sung in the taverns of Silverfen, and your failures, should they come, be met with steel and solidarity.\n\nTake up your sigil. Ready your blade. The world awaits.\n\nSigned in ink and flame,\nGuildmaster of Asharavel</span>
-          <span class="caret">|</span>
+          <span class="caret" style="display:none">|</span>
         </div>
       </div>`;
 
@@ -128,14 +128,21 @@
       // trigger reveal: after a small tick add 'visible' to all .char elements
       setTimeout(() => {
         const chars = textSpan.querySelectorAll('.char');
+        // enable caret visually and with animation by adding container class
+        const container = document.getElementById('scroll-video-typewriter');
+        if (container) container.classList.add('typing');
+        const caretEl = document.querySelector('#scroll-video-typewriter .caret');
+        if (caretEl) {
+          caretEl.style.display = 'inline-block';
+          caretEl.style.opacity = '1';
+        }
         chars.forEach(c => c.classList.add('visible'));
         // hide the blinking caret after the last character finishes animating
         try {
           const totalMs = (charIndex * perCharDelay) + 200; // small buffer after last char
-          const caretEl = document.querySelector('#scroll-video-typewriter .caret');
           if (caretEl) {
             setTimeout(() => {
-              try { caretEl.style.transition = 'opacity 180ms ease'; caretEl.style.opacity = '0'; } catch(e){}
+              try { if (container) container.classList.remove('typing'); caretEl.style.display = 'none'; } catch(e){}
             }, totalMs);
           }
         } catch(e){}
