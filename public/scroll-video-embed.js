@@ -78,7 +78,12 @@
       <div class="end-content">
         <div class="scroll-typewriter" id="scroll-video-typewriter">
           <span class="text" id="scroll-video-text">To the brave soul whose name now graces our ledger.\n\nBy decree of the Guildmaster and the Circle of Blades, you are hereby welcomed into the Adventurers Guild of Asharavel. From the moss-laced ruins of Eldenmere to the frostbitten peaks of Tharundel, our banners fly where corruption festers and now, yours shall fly among them.\n\nYou are no longer wanderer, nor mercenary, nor lone blade in the dark. You are kin to elves, dwarves, humans, and all who stand against the shadow. Your oath binds you to the defense of the realm, the pursuit of honor, and the cleansing of evil in all its forms, be it goblin horde, spider brood, or troll siege.\n\nWithin these halls you shall find comrades, quests, and chronicles. Your deeds will be etched into the Guild’s log, your victories sung in the taverns of Silverfen, and your failures, should they come, be met with steel and solidarity.\n\nTake up your sigil. Ready your blade. The world awaits.\n\nSigned in ink and flame,\nGuildmaster of Asharavel</span>
-          <span class="caret" style="display:none">|</span>
+          <span class="pen" style="display:none" aria-hidden="true">
+            <!-- small fountain-pen nib SVG -->
+            <svg viewBox="0 0 24 24" width="28" height="28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path fill="#4b2b0b" d="M2 22c0 .6.4 1 1 1s1-.4 1-1v-3l12-12-2-2L4 18H1c-.6 0-1 .4-1 1zm19.7-14.3c.4-.4.4-1 0-1.4l-2-2c-.4-.4-1-.4-1.4 0l-1.6 1.6 3.4 3.4 1.6-1.6zM7.5 17l5-5 1.4 1.4-5 5H7.5z"/>
+            </svg>
+          </span>
         </div>
       </div>`;
 
@@ -129,20 +134,20 @@
       // sequentially reveal characters so we can move the caret along with typing
       const chars = Array.from(textSpan.querySelectorAll('.char'));
       const container = document.getElementById('scroll-video-typewriter');
-      const caretEl = document.querySelector('#scroll-video-typewriter .caret');
+  const penEl = document.querySelector('#scroll-video-typewriter .pen');
       if (container) container.classList.add('typing');
-      if (caretEl) { caretEl.style.display = 'inline-block'; caretEl.style.opacity = '1'; }
+  if (penEl) { penEl.style.display = 'inline-block'; penEl.style.opacity = '1'; }
 
       chars.forEach((chEl, idx) => {
         setTimeout(() => {
           try {
             chEl.classList.add('visible');
             // move caret to immediately after this character
-            if (caretEl && chEl.parentNode) {
-              // insert caret after the character node
+            if (penEl && chEl.parentNode) {
+              // insert pen after the character node so it follows the typing
               const parent = chEl.parentNode;
-              if (chEl.nextSibling) parent.insertBefore(caretEl, chEl.nextSibling);
-              else parent.appendChild(caretEl);
+              if (chEl.nextSibling) parent.insertBefore(penEl, chEl.nextSibling);
+              else parent.appendChild(penEl);
             }
           } catch(e){}
         }, idx * perCharDelay);
@@ -151,9 +156,9 @@
       // hide caret after last char + small buffer
       try {
         const totalMs = (chars.length * perCharDelay) + 250;
-        if (caretEl) {
+        if (penEl) {
           setTimeout(() => {
-            try { if (container) container.classList.remove('typing'); caretEl.style.display = 'none'; } catch(e){}
+            try { if (container) container.classList.remove('typing'); penEl.style.display = 'none'; } catch(e){}
           }, totalMs);
         }
       } catch(e){}
