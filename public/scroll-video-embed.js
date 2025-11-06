@@ -145,14 +145,15 @@
       const container = document.getElementById('scroll-video-typewriter');
   const penEl = document.querySelector('#scroll-video-typewriter .pen');
       if (container) container.classList.add('typing');
-      if (penEl) {
-        // ensure pen is ready for absolute positioning (will not affect layout)
-        penEl.style.display = '';
-        penEl.style.opacity = '1';
-        penEl.style.left = '-9999px';
-        penEl.style.top = '-9999px';
-        penEl.style.transition = 'left 0.04s linear, top 0.04s linear, transform 0.08s ease';
-      }
+            if (penEl) {
+    // ensure pen is ready for absolute positioning (will not affect layout)
+    penEl.style.display = '';
+    penEl.style.opacity = '1';
+    penEl.style.left = '-9999px';
+    penEl.style.top = '-9999px';
+    penEl.style.transition = 'left 0.04s linear, top 0.04s linear, transform 0.08s ease';
+    penEl.style.transformOrigin = '50% 50%';
+  }
 
       chars.forEach((chEl, idx) => {
         setTimeout(() => {
@@ -163,14 +164,25 @@
               try {
                 const chRect = chEl.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
-                // place pen near the right edge of the character and slightly below center (nib to baseline)
-                const left = chRect.right - containerRect.left + 2; // small offset to sit after char
-                const top = chRect.top - containerRect.top + (chRect.height * 0.65);
+                // compute pen rendered size and map nib position from viewBox to pixels
+                const penRect = penEl.getBoundingClientRect();
+                const renderedWidth = penRect.width || 64; // fallback if not yet measured
+                const vbWidth = 120; // viewBox width used in SVG
+                const nibVBx = 112; // approx x coordinate of nib tip inside viewBox
+                const scale = renderedWidth / vbWidth;
+                const nibX = nibVBx * scale;
+                const centerX = renderedWidth / 2;
+                // center left such that nib tip sits on the character's right edge (so after flip nib faces left)
+                const left = (chRect.right - containerRect.left) - (nibX - centerX) + 0;
+                // vertical: align nib slightly below character midline so it 'touches' the baseline
+                const top = chRect.top - containerRect.top + (chRect.height * 0.62);
                 penEl.style.left = left + 'px';
                 penEl.style.top = top + 'px';
-                // small tilt for variation
+                // small tilt for variation; because we'll flip horizontally, use a positive base rotation
                 const tilt = (idx % 3) - 1; // -1,0,1
-                penEl.style.transform = 'translate(-50%,-50%) rotate(' + (-18 + tilt*6) + 'deg)';
+                const baseRot = 18;
+                const rotation = baseRot - (tilt * 6);
+                penEl.style.transform = 'translate(-50%,-50%) scaleX(-1) rotate(' + rotation + 'deg)';
               } catch (e) { /* ignore positioning errors on old browsers */ }
             }
           } catch(e){}
