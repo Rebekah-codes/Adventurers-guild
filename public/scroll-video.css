@@ -66,9 +66,9 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
   width: min(94vw, 1200px);
   max-width: 100%;
   font-family:'Great Vibes','Uncial Antiqua',serif,cursive;
-  font-size:1.4rem; /* increased for readability */
+  font-size:1.6rem; /* slightly larger for readability */
   font-weight:800; /* bolder for readability */
-  color:#000;
+  color: #4b2b0b; /* dark brown ink color */
   white-space:pre-wrap;
   overflow:hidden;
 }
