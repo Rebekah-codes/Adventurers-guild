@@ -40,6 +40,9 @@ heroku-backend-push.log.split.err
 # temporary ffmpeg artifacts and downloads
 tmp/
 *.zip
+# explicit ffmpeg artifacts (large)
+tmp/ffmpeg/
+tmp/ffmpeg-release-essentials.zip
 
 # local snapshot files created during testing
 temp_*.html
