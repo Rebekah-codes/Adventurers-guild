@@ -8,11 +8,20 @@
   <style>
     /* Overrides to ensure the paper text shows as plain black text with no grey boxes */
     .overlay .paper-text,
-    .overlay .paper-text * {
+    .overlay .paper-text *,
+    .overlay .paper-text p,
+    .overlay .paper-text p::before,
+    .overlay .paper-text p::after,
+    .overlay .paper-text div,
+    .overlay .paper-text span {
       background: transparent !important;
+      background-color: transparent !important;
       box-shadow: none !important;
       border: none !important;
       color: #000 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
     }
 
     /* Typewriter styles */
