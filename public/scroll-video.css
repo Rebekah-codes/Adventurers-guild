@@ -85,6 +85,12 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 /* caret is hidden by default; JS will enable it only while typing */
 .scroll-typewriter .caret{display:none;margin-left:.25rem}
 .scroll-typewriter.typing .caret{display:inline-block;animation:blink 1s steps(1) infinite}
+
+/* Ensure no stray/global caret appears inside the scroll video overlay.
+  Hide any .caret elements that are children of the overlay except the
+  one inside our .scroll-typewriter when it is actively typing. */
+.scroll-video-overlay .caret { display: none !important; }
+.scroll-video-overlay .scroll-typewriter.typing .caret { display: inline-block !important; opacity: 1 !important; animation: blink 1s steps(1) infinite !important; }
 @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
 
 /* Make sure underlying page background remains visible when overlay removed */
