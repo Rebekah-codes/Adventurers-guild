@@ -129,6 +129,16 @@
       setTimeout(() => {
         const chars = textSpan.querySelectorAll('.char');
         chars.forEach(c => c.classList.add('visible'));
+        // hide the blinking caret after the last character finishes animating
+        try {
+          const totalMs = (charIndex * perCharDelay) + 200; // small buffer after last char
+          const caretEl = document.querySelector('#scroll-video-typewriter .caret');
+          if (caretEl) {
+            setTimeout(() => {
+              try { caretEl.style.transition = 'opacity 180ms ease'; caretEl.style.opacity = '0'; } catch(e){}
+            }, totalMs);
+          }
+        } catch(e){}
       }, 30);
     }
 
