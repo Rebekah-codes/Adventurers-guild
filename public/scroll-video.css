@@ -21,8 +21,18 @@
 }
 /* show the video as if it were a gif: no box, no rounded corners, no drop shadow */
 .scroll-video-wrap video{
-  display:block; width:auto; height:auto; border-radius:0; box-shadow:none; background:transparent; object-fit:contain;
-  max-width:1100px; max-height:72vh; width:auto; height:auto;
+  /* Make the video cover the full viewport so it fills the entire page.
+     Use !important to override other page styles that might constrain
+     video size (e.g. global video rules). */
+  display:block !important;
+  border-radius:0 !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  width:100vw !important;
+  height:100vh !important;
+  max-width:none !important;
+  max-height:none !important;
+  object-fit:cover !important;
 }
 
 /* Hide webkit/native controls aggressively so browsers don't show the
@@ -34,12 +44,20 @@ video::-webkit-media-controls-panel { display:none !important; }
 video::-webkit-media-controls-overlay-play-button { display:none !important; }
 
 /* custom play overlay when autoplay is blocked */
-.scroll-video-play{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; z-index:2; background:transparent; border:none; cursor:pointer; color:#e6f9fb}
-.scroll-video-play svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6));}
+.scroll-video-play{position:absolute; display:flex; align-items:center; justify-content:center; z-index:2; background:transparent; border:none; cursor:pointer; color:#e6f9fb; width:64px; height:64px; left:50%; top:50%; transform:translate(-50%,-50%); border-radius:999px}
+.scroll-video-play svg{filter:drop-shadow(0 2px 6px rgba(0,0,0,0.6)); width:38px; height:38px}
 .scroll-video-play{font-size:24px}
 .scroll-video-play:focus{outline:3px solid rgba(14,165,177,0.18); border-radius:999px}
-.scroll-video-close{position:absolute; right:8px; top:8px; background:linear-gradient(90deg,#6d28d9,#0ea5b1); color:#041414; border:none; padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:800}
+.scroll-video-close{position:absolute; right:8px; top:8px; background:linear-gradient(90deg,#6d28d9,#0ea5b1); color:#041414; border:none; padding:8px 12px; border-radius:999px; cursor:pointer; font-weight:800; z-index:6}
 .scroll-video-close:focus{outline:3px solid rgba(14,165,177,0.18)}
+
+/* End-of-video centered text */
+.scroll-video-endtext{position:absolute;left:0;right:0;top:0;bottom:0;display:flex;align-items:center;justify-content:center;z-index:4;pointer-events:none;opacity:0;transition:opacity 260ms ease}
+.scroll-video-endtext.visible{opacity:1}
+.scroll-video-endtext p{pointer-events:auto;margin:0;padding:14px 20px;border-radius:10px;background:rgba(2,6,8,0.6);color:#e6f9fb;font-weight:600;font-size:1.1rem}
+.scroll-video-endtext .end-content{max-width:86ch;text-align:left;line-height:1.48;padding:18px}
+.scroll-video-endtext .end-content .body{font-family:'Great Vibes','Uncial Antiqua',serif,cursive;font-size:1.15rem;margin-bottom:0.8rem;white-space:pre-wrap}
+.scroll-video-endtext .end-content .signature{font-family:'Uncial Antiqua',serif,cursive;font-weight:700;margin-top:0.8rem;text-align:right}
 
 /* Make sure underlying page background remains visible when overlay removed */
 .background-container{z-index:-1}
