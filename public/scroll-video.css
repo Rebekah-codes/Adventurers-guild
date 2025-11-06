@@ -87,7 +87,7 @@ video::-webkit-media-controls-overlay-play-button { display:none !important; }
 .scroll-typewriter.typing .caret{display:inline-block;animation:blink 1s steps(1) infinite}
 .scroll-typewriter { position: relative; }
 .scroll-typewriter .pen{display:none; position:absolute; width:32px; height:32px; pointer-events:none; transform:translate(-50%,-50%) rotate(-20deg);}
-.scroll-typewriter .pen svg{width:32px;height:32px;display:block}
+.scroll-typewriter .pen svg{width:64px;height:auto;display:block;filter:drop-shadow(0 3px 4px rgba(0,0,0,0.18));}
 .scroll-typewriter.typing .pen{display:block}
 
 /* Ensure no stray/global caret appears inside the scroll video overlay.

@@ -79,9 +79,18 @@
         <div class="scroll-typewriter" id="scroll-video-typewriter">
           <span class="text" id="scroll-video-text">To the brave soul whose name now graces our ledger.\n\nBy decree of the Guildmaster and the Circle of Blades, you are hereby welcomed into the Adventurers Guild of Asharavel. From the moss-laced ruins of Eldenmere to the frostbitten peaks of Tharundel, our banners fly where corruption festers and now, yours shall fly among them.\n\nYou are no longer wanderer, nor mercenary, nor lone blade in the dark. You are kin to elves, dwarves, humans, and all who stand against the shadow. Your oath binds you to the defense of the realm, the pursuit of honor, and the cleansing of evil in all its forms, be it goblin horde, spider brood, or troll siege.\n\nWithin these halls you shall find comrades, quests, and chronicles. Your deeds will be etched into the Guild’s log, your victories sung in the taverns of Silverfen, and your failures, should they come, be met with steel and solidarity.\n\nTake up your sigil. Ready your blade. The world awaits.\n\nSigned in ink and flame,\nGuildmaster of Asharavel</span>
           <span class="pen" style="display:none" aria-hidden="true">
-            <!-- simplified nib-style fountain pen SVG (absolute positioned) -->
-            <svg viewBox="0 0 24 24" width="32" height="32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <path fill="#4b2b0b" d="M12.5 3l8.5 8.5L12.5 22 4 13.5 12.5 3zm-1 6a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"/>
+            <!-- fuller calligraphy pen SVG: handle + ferrule + nib -->
+            <svg viewBox="0 0 120 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- handle (wood/dark-brown) -->
+              <rect x="0" y="4" rx="6" ry="6" width="88" height="16" fill="#5a2f1a" />
+              <!-- slight highlight on handle -->
+              <rect x="6" y="6" rx="4" ry="4" width="60" height="6" fill="#7a4324" opacity="0.12"/>
+              <!-- ferrule (metal band) -->
+              <rect x="88" y="6" width="8" height="12" rx="2" ry="2" fill="#2b1a11" />
+              <!-- nib -->
+              <path d="M104 4 L120 12 L104 20 L96 14 L104 4 Z" fill="#2b1a11" />
+              <!-- nib slit / detail -->
+              <rect x="108" y="11" width="2" height="2" rx="1" fill="#d6a873" />
             </svg>
           </span>
         </div>
